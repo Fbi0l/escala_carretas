@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+*.log
+# Dados reais (fichas do CNES, cargas de médicos) nunca entram no repositório.
+dados/
+*.seed.sql
+*.pdf
