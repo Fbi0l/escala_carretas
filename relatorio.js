@@ -49,17 +49,21 @@
     return out.join('\n').trim() + '\n';
   }
 
-  let carregando = null;
-  function carregarDocx() {
-    if (window.docx) return Promise.resolve();
-    return carregando || (carregando = new Promise((ok, falha) => {
+  // Bibliotecas pesadas só carregam quando o arquivo é pedido (Word ou PDF).
+  const carregando = {};
+  function carregar(arquivo, pronto, nome) {
+    if (pronto()) return Promise.resolve();
+    return carregando[arquivo] || (carregando[arquivo] = new Promise((ok, falha) => {
       const s = document.createElement('script');
-      s.src = 'vendor/docx-9.15.4.js';
+      s.src = 'vendor/' + arquivo;
       s.onload = () => ok();
-      s.onerror = () => { carregando = null; falha(new Error('Não foi possível carregar o gerador de Word. Verifique a conexão.')); };
+      s.onerror = () => { delete carregando[arquivo]; falha(new Error(`Não foi possível carregar o gerador de ${nome}. Verifique a conexão.`)); };
       document.head.appendChild(s);
     }));
   }
+  const carregarDocx = () => carregar('docx-9.15.4.js', () => !!window.docx, 'Word');
+  const carregarPdf = () => carregar('jspdf-3.0.4.js', () => !!(window.jspdf && window.jspdf.jsPDF), 'PDF');
+  const nomeArquivo = (mes, ext) => { const [y, m] = mes.split('-'); return `DIVISAO_DE_MEDICOS_POR_CNES_${MESES[+m - 1]}${y.slice(2)}.${ext}`; };
   async function word(mes, ctx) {
     await carregarDocx();
     const { Document, Packer, Paragraph, TextRun, AlignmentType } = window.docx;
@@ -78,9 +82,41 @@
     const doc = new Document({ creator: 'Escala das Carretas', title: titulo(mes),
       sections: [{ properties: { page: { margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } } }, children: kids }] });
     const blob = await Packer.toBlob(doc);
-    const [y, m] = mes.split('-');
-    return { blob, nome: `DIVISAO_DE_MEDICOS_POR_CNES_${MESES[+m - 1]}${y.slice(2)}.docx` };
+    return { blob, nome: nomeArquivo(mes, 'docx') };
   }
 
-  window.Relatorio = Object.freeze({ montar, texto, word, titulo, cboNome, nomeMes, dataCurta, MESES, CBO_NOMES });
+  // PDF em A4, com o mesmo conteúdo e ordem do Word. Texto real (pesquisável e copiável), não imagem.
+  async function pdf(mes, ctx) {
+    await carregarPdf();
+    const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    doc.setProperties({ title: titulo(mes), creator: 'Escala das Carretas' });
+    const L = 20, W = 170, TOPO = 20, BASE = 282;
+    let y = TOPO;
+    const quebra = alt => { if (y + alt > BASE) { doc.addPage(); y = TOPO; } };
+    const escrever = (txt, { tam = 10.5, negrito = false, recuo = 0, centro = false, antes = 0, depois = 1.2 } = {}) => {
+      doc.setFont('helvetica', negrito ? 'bold' : 'normal'); doc.setFontSize(tam);
+      const linhas = doc.splitTextToSize(txt, W - recuo), alt = tam * 0.42;
+      y += antes; quebra(alt * linhas.length);
+      linhas.forEach((l, i) => doc.text(l, centro ? L + W / 2 : L + recuo + (i ? 3 : 0), y + alt * (i + 1) - 0.8, { align: centro ? 'center' : 'left' }));
+      y += alt * linhas.length + depois;
+    };
+    escrever(titulo(mes), { tam: 13, negrito: true, centro: true, depois: 5 });
+    montar(mes, ctx).forEach(bl => {
+      quebra(18);
+      escrever(bl.titulo, { negrito: true, antes: 4, depois: 2 });
+      bl.carretas.forEach(c => {
+        quebra(10);
+        escrever(`• ${c.cab}`, { negrito: true, antes: 1.5, depois: 1 });
+        c.linhas.forEach(l => escrever(`- ${l}`, { recuo: 4 }));
+      });
+    });
+    const total = doc.getNumberOfPages(), gerado = new Date().toLocaleDateString('pt-BR');
+    for (let i = 1; i <= total; i++) {
+      doc.setPage(i); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(110);
+      doc.text(`Gerado em ${gerado}`, L, 290); doc.text(`Página ${i} de ${total}`, L + W, 290, { align: 'right' }); doc.setTextColor(0);
+    }
+    return { blob: doc.output('blob'), nome: nomeArquivo(mes, 'pdf') };
+  }
+
+  window.Relatorio = Object.freeze({ montar, texto, word, pdf, titulo, cboNome, nomeMes, dataCurta, MESES, CBO_NOMES });
 })();

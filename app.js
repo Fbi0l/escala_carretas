@@ -205,7 +205,8 @@
         <div class="rel-barra">
           <div class="rel-info"><strong>Divisão de médicos por CNES</strong><span class="small muted num">${plural(blocos.length, 'ação', 'ações')} · ${plural(nEsc, 'escala', 'escalas')}</span></div>
           <div class="rel-acoes">
-            <button class="btn primary" type="button" data-acao="baixar-word">${ic('down')}Baixar Word</button>
+            <button class="btn primary" type="button" data-acao="baixar" data-tipo="pdf">${ic('down')}Baixar PDF</button>
+            <button class="btn primary" type="button" data-acao="baixar" data-tipo="word">${ic('down')}Baixar Word</button>
             <button class="btn" type="button" data-acao="copiar" data-whats="0">${ic('copy')}Copiar texto</button>
             <button class="btn" type="button" data-acao="copiar" data-whats="1">${ic('copy')}WhatsApp</button>
           </div>
@@ -225,14 +226,14 @@
         </div>
       </div>`;
   }
-  async function baixarWord(btn) {
+  async function baixar(btn, tipo) {
     const rot = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Gerando…';
     try {
-      const { blob, nome } = await R.word(S.mes, ctxRel());
+      const { blob, nome } = await (tipo === 'pdf' ? R.pdf : R.word)(S.mes, ctxRel());
       const url = URL.createObjectURL(blob); const a = document.createElement('a');
       a.href = url; a.download = nome; document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 4000); toast('Arquivo Word baixado.');
-    } catch (e) { toast(msgErro(e, 'Não foi possível gerar o Word.'), true); }
+      setTimeout(() => URL.revokeObjectURL(url), 4000); toast(tipo === 'pdf' ? 'PDF baixado.' : 'Arquivo Word baixado.');
+    } catch (e) { toast(msgErro(e, `Não foi possível gerar o ${tipo === 'pdf' ? 'PDF' : 'Word'}.`), true); }
     finally { btn.disabled = false; btn.innerHTML = rot; }
   }
   async function copiar(whats) {
@@ -602,7 +603,7 @@
       case 'salvar-acao': salvarAcao(el); break;
       case 'rm-al': S.modal.draft.alocacoes.splice(+el.dataset.i, 1); gradeEditor(); break;
       case 'ultimo-mes': { const m = await ultimoMesComEscala(); if (m) irPara('escalas', m); else toast('Ainda não há escalas cadastradas.'); break; }
-      case 'baixar-word': baixarWord(el); break;
+      case 'baixar': baixar(el, el.dataset.tipo); break;
       case 'copiar': copiar(el.dataset.whats === '1'); break;
       case 'abrir-medico': abrirMedico(S.medicos.get(id)); break;
       case 'novo-medico': abrirMedico(null); break;
