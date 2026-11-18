@@ -118,8 +118,7 @@ main:focus{outline:none}
   .topo-linha2{padding-top:4px;padding-bottom:12px;gap:10px}
   .mes-nav{width:100%;justify-content:space-between}
   .mes-nav h1{font-size:21px;min-width:0;flex:1}
-  .seg{margin-left:0;width:100%}
-  .seg a{flex:1;justify-content:center}
+  .seg{display:none}
   .faixa-acoes{width:100%}
   .faixa-acoes .btn{flex:1}
   .resumo{display:none}
@@ -143,6 +142,7 @@ main:focus{outline:none}
 .data-box b{font-size:17px;line-height:1}
 .data-box span{font-size:10.5px;text-transform:uppercase;font-weight:600;letter-spacing:.04em}
 .acao-t{font-weight:600;font-size:15px;margin:0}
+.acao-h>div:nth-child(2){flex:1 1 200px;min-width:0}
 .acao-btns{margin-left:auto;display:flex;gap:4px}
 .cgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
 .ccol{padding:12px 16px 14px;border-right:1px solid var(--line);min-width:0}
@@ -189,16 +189,40 @@ tbody tr:last-child td{border-bottom:0}
 .carreta .topo-c{display:flex;align-items:center;gap:8px;font-weight:600}
 
 /* Relatório */
-.rel{display:grid;grid-template-columns:270px minmax(0,1fr);gap:18px;align-items:start}
-@media (max-width:900px){.rel{grid-template-columns:1fr}}
-.rel-side{padding:16px;display:flex;flex-direction:column;gap:12px;position:sticky;top:150px}
-@media (max-width:900px){.rel-side{position:static}}
+.rel{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.rel-barra{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.rel-info{display:flex;flex-direction:column;gap:2px;margin-right:auto}
+.rel-info strong{font-size:16px}
+.rel-acoes{display:flex;gap:8px;flex-wrap:wrap}
+.rel-bloco{padding:0;overflow:hidden}
+.rel-bloco>summary,.rel-bloco.ok{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;list-style:none;min-height:48px}
+.rel-bloco.ok{cursor:default;background:var(--ok-soft);color:var(--ok);border-color:var(--ok-line)}
+.rel-bloco>summary::-webkit-details-marker{display:none}
+.rel-bloco>summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .15s;flex:none;opacity:.7}
+.rel-bloco[open]>summary::after{transform:rotate(-135deg)}
+.rel-bloco.err>summary{background:var(--err-soft);color:var(--err)}
+.rel-bloco.warn>summary{background:var(--warn-soft);color:var(--warn)}
+.rel-bloco.err{border-color:var(--err-line)}.rel-bloco.warn{border-color:var(--warn-line)}
+.pend{list-style:none;margin:0;padding:6px 16px 12px;display:flex;flex-direction:column}
+.pend li{padding:9px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:2px;font-size:13px}
+.pend li:last-child{border-bottom:0}
+.pend li span{color:var(--muted)}
+.rel-opcoes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px;padding:4px 16px 14px}
 .papel{background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);padding:44px 52px;font-family:Calibri,Carlito,"Segoe UI",Arial,sans-serif;font-size:14.5px;line-height:1.5;color:#111;overflow-wrap:anywhere}
-@media (max-width:560px){.papel{padding:22px 16px;font-size:13.5px}}
 .papel h2{font-size:17px;text-align:center;margin:0 0 22px}
 .papel h3{font-size:14.5px;margin:22px 0 8px}
 .papel .cn{font-weight:700;margin:10px 0 4px}
 .papel .ln{margin:0 0 3px 14px}
+@media (max-width:760px){
+  .rel-info{width:100%}
+  .rel-acoes{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .rel-acoes .btn.primary{grid-column:1 / -1}
+  .rel-opcoes{grid-template-columns:1fr}
+  .papel{padding:20px 16px;font-size:13px;border-radius:10px}
+  .papel h2{font-size:15px;margin-bottom:14px}
+  .papel h3{font-size:13.5px;margin-top:18px}
+  .papel .ln{margin-left:6px}
+}
 
 /* Usuários */
 .convite-box{padding:16px;margin-bottom:18px;display:flex;flex-direction:column;gap:12px}
@@ -243,4 +267,4 @@ tbody tr:last-child td{border-bottom:0}
 @keyframes gira{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.spinner{animation-duration:2.4s}*{scroll-behavior:auto!important;transition:none!important}}
 @media (pointer:coarse){.btn.sm{min-height:40px}}
-@media print{.topo,.abas,.rodape,.rel-side,.fab,.avisos{display:none!important}.papel{border:0;box-shadow:none;padding:0}main{padding:0}}
+@media print{.topo,.abas,.rodape,.rel-barra,.rel-bloco,.fab{display:none!important}.papel{border:0;box-shadow:none;padding:0}main{padding:0}}

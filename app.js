@@ -53,7 +53,7 @@
   const S = {
     eu: null, carretas: [], medicos: new Map(), acoes: [], mesesCarregados: new Set(),
     vista: 'escalas', mes: hoje().slice(0, 7), busca: '', filtroMed: 'todos', modal: null,
-    rep: { placa: true, nomeCarreta: false, cbo: true, funcao: true }, ultimaCarga: 0
+    rep: { placa: true, nomeCarreta: false, cbo: true, funcao: true }, relPend: false, relOpc: false, ultimaCarga: 0
   };
   try { Object.assign(S.rep, JSON.parse(ler('escala.rep') || '{}')); } catch (_) { /* padrão */ }
   const admin = () => S.eu?.perfil === 'administrador';
@@ -187,34 +187,42 @@
   function vRelatorio(faixa, main) {
     faixa.innerHTML = faixaMes('relatorio');
     const blocos = R.montar(S.mes, ctxRel());
-    const grupos = new Map();
+    // Pendências agrupadas por médico: uma linha por pessoa, com o problema e onde aparece.
+    const porMedico = new Map();
     acoesDoMes(S.mes).forEach(a => a.alocacoes.forEach(al => problemas(a, al).forEach(p => {
-      const k = al.medico_id + '|' + p.t;
-      if (!grupos.has(k)) grupos.set(k, { n: p.n, nome: S.medicos.get(al.medico_id)?.nome || '?', t: p.t, onde: new Set() });
-      grupos.get(k).onde.add(`${R.dataCurta(a.data).slice(0, 5)} CNES ${al.cnes}`);
+      const nome = S.medicos.get(al.medico_id)?.nome || '?';
+      if (!porMedico.has(al.medico_id)) porMedico.set(al.medico_id, { nome, err: false, itens: new Map() });
+      const g = porMedico.get(al.medico_id); if (p.n === 'err') g.err = true;
+      if (!g.itens.has(p.t)) g.itens.set(p.t, new Set());
+      g.itens.get(p.t).add(`${R.dataCurta(a.data).slice(0, 5)} (${curto(carreta(al.cnes))})`);
     })));
-    const avisos = [...grupos.values()].sort((a, b) => (a.n === 'err' ? 0 : 1) - (b.n === 'err' ? 0 : 1));
+    const pend = [...porMedico.values()].sort((a, b) => (b.err - a.err) || a.nome.localeCompare(b.nome, 'pt-BR'));
+    const nErr = pend.filter(g => g.err).length;
     const opt = (k, t) => `<label class="check"><input type="checkbox" data-rep="${k}" ${S.rep[k] ? 'checked' : ''}> ${t}</label>`;
     const nEsc = blocos.reduce((n, b) => n + b.carretas.reduce((k, c) => k + c.linhas.length, 0), 0);
     main.innerHTML = !blocos.length ? `<div class="card vazio"><h2>Sem escalas em ${esc(R.nomeMes(S.mes))}</h2><p>O relatório aparece quando houver ações cadastradas no mês.</p></div>` : `
       <div class="rel">
-        <aside class="card rel-side">
-          <span class="lbl">Mostrar no relatório</span>
-          ${opt('placa', 'Placa da carreta')}${opt('nomeCarreta', 'Nome da carreta')}${opt('cbo', 'CBO e descrição')}${opt('funcao', 'Função (MASTO, GINECO, USG…)')}
-          <button class="btn primary" type="button" data-acao="baixar-word">${ic('down')}Baixar Word (.docx)</button>
-          <button class="btn" type="button" data-acao="copiar" data-whats="0">${ic('copy')}Copiar texto</button>
-          <button class="btn" type="button" data-acao="copiar" data-whats="1">${ic('copy')}Copiar para WhatsApp</button>
-          <span class="small muted num">${plural(blocos.length, 'ação', 'ações')} · ${plural(nEsc, 'escala', 'escalas')}</span>
-        </aside>
-        <section>
-          <div class="avisos">${avisos.length ? avisos.slice(0, 15).map(g => `<div class="aviso ${g.n}">${ic('alert')}<span><b>${esc(g.nome)}</b>: ${esc(g.t)} <span style="opacity:.85">(${esc([...g.onde].join(' · '))})</span></span></div>`).join('')
-            + (avisos.length > 15 ? `<p class="small muted">E mais ${avisos.length - 15} avisos.</p>` : '')
-            : `<div class="aviso ok">${ic('check')}<span>Todos os médicos estão vinculados ao CNES da carreta em que foram escalados.</span></div>`}</div>
-          <div class="papel" id="papel">
-            <h2>${esc(R.titulo(S.mes))}</h2>
-            ${blocos.map(b => `<h3>${esc(b.titulo)}</h3>${b.carretas.map(c => `<div class="cn">• ${esc(c.cab)}</div>${c.linhas.map(l => `<div class="ln">- ${esc(l)}</div>`).join('')}`).join('')}`).join('')}
+        <div class="rel-barra">
+          <div class="rel-info"><strong>Divisão de médicos por CNES</strong><span class="small muted num">${plural(blocos.length, 'ação', 'ações')} · ${plural(nEsc, 'escala', 'escalas')}</span></div>
+          <div class="rel-acoes">
+            <button class="btn primary" type="button" data-acao="baixar-word">${ic('down')}Baixar Word</button>
+            <button class="btn" type="button" data-acao="copiar" data-whats="0">${ic('copy')}Copiar texto</button>
+            <button class="btn" type="button" data-acao="copiar" data-whats="1">${ic('copy')}WhatsApp</button>
           </div>
-        </section>
+        </div>
+        ${pend.length ? `<details class="card rel-bloco ${nErr ? 'err' : 'warn'}" data-det="pend" ${S.relPend ? 'open' : ''}>
+            <summary>${ic('alert')}<span><b>${plural(pend.length, 'médico precisa', 'médicos precisam')} de atenção</b><span class="small"> antes de enviar ao operacional</span></span></summary>
+            <ul class="pend">${pend.map(g => `<li><b>${esc(g.nome)}</b>${[...g.itens].map(([t, onde]) => `<span>${esc(t)}: ${esc([...onde].join(', '))}</span>`).join('')}</li>`).join('')}</ul>
+          </details>`
+          : `<div class="card rel-bloco ok">${ic('check')}<span>Todos os médicos estão vinculados ao CNES da carreta em que foram escalados.</span></div>`}
+        <details class="card rel-bloco neutro" data-det="opc" ${S.relOpc ? 'open' : ''}>
+          <summary><span><b>Personalizar o relatório</b><span class="small muted"> · o que aparece em cada linha</span></span></summary>
+          <div class="rel-opcoes">${opt('placa', 'Placa da carreta')}${opt('nomeCarreta', 'Nome da carreta')}${opt('cbo', 'CBO e descrição')}${opt('funcao', 'Função (MASTO, GINECO, USG…)')}</div>
+        </details>
+        <div class="papel" id="papel" aria-label="Prévia do relatório">
+          <h2>${esc(R.titulo(S.mes))}</h2>
+          ${blocos.map(b => `<h3>${esc(b.titulo)}</h3>${b.carretas.map(c => `<div class="cn">• ${esc(c.cab)}</div>${c.linhas.map(l => `<div class="ln">- ${esc(l)}</div>`).join('')}`).join('')}`).join('')}
+        </div>
       </div>`;
   }
   async function baixarWord(btn) {
@@ -681,6 +689,10 @@
       } catch (er) { toast(msgErro(er), true); b.disabled = false; }
     }
   });
+  document.addEventListener('toggle', e => {
+    const d = e.target; if (!(d instanceof HTMLDetailsElement)) return;
+    if (d.dataset.det === 'pend') S.relPend = d.open; else if (d.dataset.det === 'opc') S.relOpc = d.open;
+  }, true);
   window.addEventListener('hashchange', () => { if (S.eu) rotear(); });
   window.addEventListener('beforeunload', e => { if (editorSujo()) { e.preventDefault(); e.returnValue = ''; } });
   document.addEventListener('visibilitychange', async () => {
