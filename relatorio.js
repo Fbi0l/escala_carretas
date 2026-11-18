@@ -1,4 +1,4 @@
-/* Relatório "Divisão de médicos por CNES": monta o conteúdo do mês e gera texto ou Word (.docx).
+/* "Relatório de escala médica das carretas" (divisão de médicos por CNES): monta o conteúdo do mês e gera texto ou Word (.docx).
    Tudo é gerado no próprio aparelho; nenhum dado vai para outro serviço. */
 (function () {
   'use strict';
@@ -39,10 +39,11 @@
     if (ctx.opcoes.funcao && al.funcao) s += ` – ${al.funcao}`;
     return s + ';';
   }
+  const TITULO = 'RELATÓRIO DE ESCALA MÉDICA DAS CARRETAS';
   function titulo(mes) { return `DIVISÃO DE MÉDICOS POR CNES – ${nomeMes(mes).toUpperCase()}`; }
   function texto(mes, ctx, whats) {
     const b = t => whats ? `*${t}*` : t;
-    const out = [b(titulo(mes)), ''];
+    const out = [b(TITULO), b(titulo(mes)), ''];
     montar(mes, ctx).forEach(bl => {
       out.push(b(bl.titulo), '');
       bl.carretas.forEach(c => { out.push(`• ${c.cab}`); c.linhas.forEach(l => out.push(`- ${l}`)); out.push(''); });
@@ -109,7 +110,7 @@
       keepNext: !!o.keepNext,
       children: [new TextRun({ text, bold: !!o.bold, font, size: meia })]
     });
-    const kids = [P(titulo(mes), { bold: true, center: true, after: linha })];
+    const kids = [P(TITULO, { bold: true, center: true }), P(titulo(mes), { bold: true, center: true, after: linha })];
     montar(mes, ctx).forEach(bl => {
       kids.push(P(bl.titulo, { bold: true, before: linha, after: 120, keepNext: true }));
       bl.carretas.forEach(c => {
@@ -120,7 +121,7 @@
     const rodape = new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT,
       children: [new TextRun({ children: [PageNumber.CURRENT], font, size: ABNT.pagina * 2 })] })] });
     const doc = new Document({
-      creator: 'Escala das Carretas', title: titulo(mes),
+      creator: 'Escala das Carretas', title: `${TITULO} – ${titulo(mes)}`,
       styles: { default: { document: { run: { font, size: meia } } } },
       sections: [{
         properties: { page: { size: { width: 11906, height: 16838 },
@@ -136,7 +137,7 @@
   async function pdf(mes, ctx) {
     const [, logos] = await Promise.all([carregarPdf(), carregarLogos()]);
     const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
-    doc.setProperties({ title: titulo(mes), creator: 'Escala das Carretas' });
+    doc.setProperties({ title: `${TITULO} – ${titulo(mes)}`, creator: 'Escala das Carretas' });
     const L = ABNT.esq, W = 210 - ABNT.esq - ABNT.dir, TOPO = ABNT.topo, BASE = 297 - ABNT.base;
     const pt = 0.3528, lh = ABNT.fonte * pt * ABNT.entrelinha; // altura de uma linha com entrelinha 1,5 (≈ 6,35 mm)
     let y = TOPO;
@@ -149,6 +150,7 @@
       linhas.forEach((l, i) => doc.text(l, centro ? L + W / 2 : L + recuo + (recuo && i ? 3 : 0), y + lh * i + ABNT.fonte * pt * 0.85, { align: centro ? 'center' : 'left' }));
       y += lh * linhas.length + depois;
     };
+    escrever(TITULO, { negrito: true, centro: true });
     escrever(titulo(mes), { negrito: true, centro: true, depois: lh });
     montar(mes, ctx).forEach(bl => {
       escrever(bl.titulo, { negrito: true, antes: lh, depois: 2, junto: 3 });
@@ -166,5 +168,5 @@
     return { blob: doc.output('blob'), nome: nomeArquivo(mes, 'pdf') };
   }
 
-  window.Relatorio = Object.freeze({ montar, texto, word, pdf, titulo, cboNome, nomeMes, dataCurta, dataLonga, MESES, CBO_NOMES });
+  window.Relatorio = Object.freeze({ TITULO, montar, texto, word, pdf, titulo, cboNome, nomeMes, dataCurta, dataLonga, MESES, CBO_NOMES });
 })();

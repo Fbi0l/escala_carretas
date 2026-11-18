@@ -203,7 +203,7 @@
     main.innerHTML = !blocos.length ? `<div class="card vazio"><h2>Sem escalas em ${esc(R.nomeMes(S.mes))}</h2><p>O relatório aparece quando houver ações cadastradas no mês.</p></div>` : `
       <div class="rel">
         <div class="rel-barra">
-          <div class="rel-info"><strong>Divisão de médicos por CNES</strong><span class="small muted num">${plural(blocos.length, 'ação', 'ações')} · ${plural(nEsc, 'escala', 'escalas')}</span></div>
+          <div class="rel-info"><strong>Relatório de escala médica das carretas</strong><span class="small muted num">${plural(blocos.length, 'ação', 'ações')} · ${plural(nEsc, 'escala', 'escalas')}</span></div>
           <div class="rel-acoes">
             <button class="btn primary" type="button" data-acao="baixar" data-tipo="pdf">${ic('down')}Baixar PDF</button>
             <button class="btn primary" type="button" data-acao="baixar" data-tipo="word">${ic('down')}Baixar Word</button>
@@ -222,7 +222,7 @@
         </details>
         <div class="papel" id="papel" aria-label="Prévia do relatório">
           <div class="timbre" aria-hidden="true"><img src="assets/logo-embrag.jpg" alt="" class="t-esq"><img src="assets/logo-asbras.jpg" alt="" class="t-dir"></div>
-          <h2>${esc(R.titulo(S.mes))}</h2>
+          <h2>${esc(R.TITULO)}<br>${esc(R.titulo(S.mes))}</h2>
           ${blocos.map(b => `<h3>${esc(b.titulo)}</h3>${b.carretas.map(c => `<div class="cn">• ${esc(c.cab)}</div>${c.linhas.map(l => `<div class="ln">- ${esc(l)}</div>`).join('')}`).join('')}`).join('')}
         </div>
       </div>`;
