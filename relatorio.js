@@ -8,6 +8,7 @@
     '225320': 'Médico em radiologia e diagnóstico por imagem', '225124': 'Médico pediatra'
   };
   const cboNome = (cbo, desc) => CBO_NOMES[cbo] || (desc ? desc.charAt(0) + desc.slice(1).toLowerCase() : '');
+  const dataLonga = s => { const [y, m, d] = s.split('-'); return `${d}/${m}/${y}`; };
   const dataCurta = s => { const [y, m, d] = s.split('-'); return `${d}/${m}/${y.slice(2)}`; };
   const nomeMes = ym => { const [y, m] = ym.split('-'); return `${MESES[+m - 1]} ${y}`; };
 
@@ -17,7 +18,7 @@
     const acoes = ctx.acoes.filter(a => a.data.slice(0, 7) === mes)
       .sort((a, b) => a.data.localeCompare(b.data) || a.local.localeCompare(b.local, 'pt-BR'));
     return acoes.map(a => ({
-      titulo: `DIVISÃO DAS CARRETAS – ${a.local} – DIA ${dataCurta(a.data)}`,
+      titulo: `DIVISÃO DAS CARRETAS – ${a.local.toLocaleUpperCase('pt-BR')} – DIA ${dataLonga(a.data)}`,
       carretas: ctx.carretas.map(c => {
         const itens = (a.alocacoes || []).filter(x => x.cnes === c.cnes).sort((x, y) => x.ordem - y.ordem);
         if (!itens.length) return null;
@@ -64,59 +65,79 @@
   const carregarDocx = () => carregar('docx-9.15.4.js', () => !!window.docx, 'Word');
   const carregarPdf = () => carregar('jspdf-3.0.4.js', () => !!(window.jspdf && window.jspdf.jsPDF), 'PDF');
   const nomeArquivo = (mes, ext) => { const [y, m] = mes.split('-'); return `DIVISAO_DE_MEDICOS_POR_CNES_${MESES[+m - 1]}${y.slice(2)}.${ext}`; };
+  /* Formatação ABNT (NBR 14724) aplicada ao Word e ao PDF:
+     A4; margens superior e esquerda 3 cm, inferior e direita 2 cm; fonte Arial 12 (Helvetica no PDF, de mesmas medidas);
+     espaçamento 1,5 entre linhas; título centralizado em negrito e maiúsculas; seções em negrito e maiúsculas;
+     numeração em algarismos arábicos no canto superior direito, a 2 cm das bordas superior e direita. */
+  const ABNT = { topo: 30, esq: 30, base: 20, dir: 20, fonte: 12, entrelinha: 1.5, recuo: 12.5, pagina: 10 };
+  const mmTwip = mm => Math.round(mm * 56.6929);
+
   async function word(mes, ctx) {
     await carregarDocx();
-    const { Document, Packer, Paragraph, TextRun, AlignmentType } = window.docx;
-    const font = 'Calibri';
+    const { Document, Packer, Paragraph, TextRun, AlignmentType, Header, PageNumber } = window.docx;
+    const font = 'Arial', meia = ABNT.fonte * 2, linha = Math.round(240 * ABNT.entrelinha);
     const P = (text, o = {}) => new Paragraph({
-      alignment: o.center ? AlignmentType.CENTER : undefined,
-      spacing: { before: o.before || 0, after: o.after ?? 60 },
-      indent: o.indent ? { left: o.indent } : undefined,
-      children: [new TextRun({ text, bold: !!o.bold, font, size: o.size || 22 })]
+      alignment: o.center ? AlignmentType.CENTER : AlignmentType.LEFT,
+      spacing: { line: linha, before: o.before || 0, after: o.after || 0 },
+      indent: o.indent ? { left: mmTwip(ABNT.recuo), hanging: mmTwip(3) } : undefined,
+      keepNext: !!o.keepNext,
+      children: [new TextRun({ text, bold: !!o.bold, font, size: meia })]
     });
-    const kids = [P(titulo(mes), { bold: true, center: true, size: 26, after: 240 })];
+    const kids = [P(titulo(mes), { bold: true, center: true, after: linha })];
     montar(mes, ctx).forEach(bl => {
-      kids.push(P(bl.titulo, { bold: true, before: 240, after: 120 }));
-      bl.carretas.forEach(c => { kids.push(P(`• ${c.cab}`, { bold: true, before: 120 })); c.linhas.forEach(l => kids.push(P(`- ${l}`, { indent: 280 }))); });
+      kids.push(P(bl.titulo, { bold: true, before: linha, after: 120, keepNext: true }));
+      bl.carretas.forEach(c => {
+        kids.push(P(`• ${c.cab}`, { bold: true, before: 120, keepNext: true }));
+        c.linhas.forEach(l => kids.push(P(`- ${l}`, { indent: true })));
+      });
     });
-    const doc = new Document({ creator: 'Escala das Carretas', title: titulo(mes),
-      sections: [{ properties: { page: { margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } } }, children: kids }] });
+    const cabecalho = new Header({ children: [new Paragraph({ alignment: AlignmentType.RIGHT,
+      children: [new TextRun({ children: [PageNumber.CURRENT], font, size: ABNT.pagina * 2 })] })] });
+    const doc = new Document({
+      creator: 'Escala das Carretas', title: titulo(mes),
+      styles: { default: { document: { run: { font, size: meia } } } },
+      sections: [{
+        properties: { page: { size: { width: 11906, height: 16838 },
+          margin: { top: mmTwip(ABNT.topo), left: mmTwip(ABNT.esq), bottom: mmTwip(ABNT.base), right: mmTwip(ABNT.dir), header: mmTwip(20), footer: mmTwip(10) } } },
+        headers: { default: cabecalho }, children: kids
+      }]
+    });
     const blob = await Packer.toBlob(doc);
     return { blob, nome: nomeArquivo(mes, 'docx') };
   }
 
-  // PDF em A4, com o mesmo conteúdo e ordem do Word. Texto real (pesquisável e copiável), não imagem.
+  // PDF A4 com a mesma formatação ABNT do Word. Texto real (pesquisável e copiável), não imagem.
   async function pdf(mes, ctx) {
     await carregarPdf();
     const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
     doc.setProperties({ title: titulo(mes), creator: 'Escala das Carretas' });
-    const L = 20, W = 170, TOPO = 20, BASE = 282;
+    const L = ABNT.esq, W = 210 - ABNT.esq - ABNT.dir, TOPO = ABNT.topo, BASE = 297 - ABNT.base;
+    const pt = 0.3528, lh = ABNT.fonte * pt * ABNT.entrelinha; // altura de uma linha com entrelinha 1,5 (≈ 6,35 mm)
     let y = TOPO;
     const quebra = alt => { if (y + alt > BASE) { doc.addPage(); y = TOPO; } };
-    const escrever = (txt, { tam = 10.5, negrito = false, recuo = 0, centro = false, antes = 0, depois = 1.2 } = {}) => {
-      doc.setFont('helvetica', negrito ? 'bold' : 'normal'); doc.setFontSize(tam);
-      const linhas = doc.splitTextToSize(txt, W - recuo), alt = tam * 0.42;
-      y += antes; quebra(alt * linhas.length);
-      linhas.forEach((l, i) => doc.text(l, centro ? L + W / 2 : L + recuo + (i ? 3 : 0), y + alt * (i + 1) - 0.8, { align: centro ? 'center' : 'left' }));
-      y += alt * linhas.length + depois;
+    const escrever = (txt, { negrito = false, recuo = 0, centro = false, antes = 0, depois = 0, junto = 0 } = {}) => {
+      doc.setFont('helvetica', negrito ? 'bold' : 'normal'); doc.setFontSize(ABNT.fonte);
+      const linhas = doc.splitTextToSize(txt, W - recuo - (recuo ? 3 : 0));
+      if (y !== TOPO) y += antes;
+      quebra(lh * (linhas.length + junto));
+      linhas.forEach((l, i) => doc.text(l, centro ? L + W / 2 : L + recuo + (recuo && i ? 3 : 0), y + lh * i + ABNT.fonte * pt * 0.85, { align: centro ? 'center' : 'left' }));
+      y += lh * linhas.length + depois;
     };
-    escrever(titulo(mes), { tam: 13, negrito: true, centro: true, depois: 5 });
+    escrever(titulo(mes), { negrito: true, centro: true, depois: lh });
     montar(mes, ctx).forEach(bl => {
-      quebra(18);
-      escrever(bl.titulo, { negrito: true, antes: 4, depois: 2 });
+      escrever(bl.titulo, { negrito: true, antes: lh, depois: 2, junto: 3 });
       bl.carretas.forEach(c => {
-        quebra(10);
-        escrever(`• ${c.cab}`, { negrito: true, antes: 1.5, depois: 1 });
-        c.linhas.forEach(l => escrever(`- ${l}`, { recuo: 4 }));
+        escrever(`• ${c.cab}`, { negrito: true, antes: 2, junto: 2 });
+        c.linhas.forEach(l => escrever(`- ${l}`, { recuo: ABNT.recuo }));
       });
     });
-    const total = doc.getNumberOfPages(), gerado = new Date().toLocaleDateString('pt-BR');
+    const total = doc.getNumberOfPages();
     for (let i = 1; i <= total; i++) {
-      doc.setPage(i); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(110);
-      doc.text(`Gerado em ${gerado}`, L, 290); doc.text(`Página ${i} de ${total}`, L + W, 290, { align: 'right' }); doc.setTextColor(0);
+      doc.setPage(i); doc.setFont('helvetica', 'normal'); doc.setFontSize(ABNT.pagina);
+      doc.text(String(i), 210 - 20, 20, { align: 'right' });
     }
     return { blob: doc.output('blob'), nome: nomeArquivo(mes, 'pdf') };
   }
 
-  window.Relatorio = Object.freeze({ montar, texto, word, pdf, titulo, cboNome, nomeMes, dataCurta, MESES, CBO_NOMES });
+  window.Relatorio = Object.freeze({ montar, texto, word, pdf, titulo, cboNome, nomeMes, dataCurta, dataLonga, MESES, CBO_NOMES });
 })();

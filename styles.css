@@ -209,19 +209,18 @@ tbody tr:last-child td{border-bottom:0}
 .pend li:last-child{border-bottom:0}
 .pend li span{color:var(--muted)}
 .rel-opcoes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px;padding:4px 16px 14px}
-.papel{background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);padding:44px 52px;font-family:Calibri,Carlito,"Segoe UI",Arial,sans-serif;font-size:14.5px;line-height:1.5;color:#111;overflow-wrap:anywhere}
-.papel h2{font-size:17px;text-align:center;margin:0 0 22px}
-.papel h3{font-size:14.5px;margin:22px 0 8px}
-.papel .cn{font-weight:700;margin:10px 0 4px}
-.papel .ln{margin:0 0 3px 14px}
+.papel{background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);padding:56px 40px 40px 56px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;color:#000;overflow-wrap:anywhere}
+.papel h2{font-size:16px;text-align:center;margin:0 0 24px;text-transform:uppercase}
+.papel h3{font-size:16px;margin:24px 0 4px;text-transform:uppercase}
+.papel .cn{font-weight:700;margin:8px 0 0}
+.papel .ln{margin:0 0 0 1.25cm;padding-left:12px;text-indent:-12px}
 @media (max-width:760px){
   .rel-info{width:100%}
   .rel-acoes{width:100%;display:grid;grid-template-columns:1fr 1fr}
   .rel-opcoes{grid-template-columns:1fr}
-  .papel{padding:20px 16px;font-size:13px;border-radius:10px}
-  .papel h2{font-size:15px;margin-bottom:14px}
-  .papel h3{font-size:13.5px;margin-top:18px}
-  .papel .ln{margin-left:6px}
+  .papel{padding:22px 16px 18px 22px;font-size:13px;border-radius:10px}
+  .papel h2,.papel h3{font-size:13px}
+  .papel .ln{margin-left:14px}
 }
 
 /* Usuários */
