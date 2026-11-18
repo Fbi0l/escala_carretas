@@ -72,8 +72,8 @@
      numeração em algarismos arábicos no rodapé, à direita (pedido do usuário; a NBR 14724 indica o canto superior). */
   const ABNT = { topo: 30, esq: 30, base: 20, dir: 20, fonte: 12, entrelinha: 1.5, recuo: 12.5, pagina: 10 };
   /* Papel timbrado: logo da ASBRAS centralizada no topo de todas as páginas, dentro da margem superior
-     (de 0,7 cm a 2,7 cm do topo). O texto continua começando a 3 cm. */
-  const TIMBRE = { topo: 7, arq: 'assets/logo-timbre.jpg', alt: 20, prop: 900 / 837 };
+     (de 0,4 cm a 2,8 cm do topo). O texto continua começando a 3 cm. */
+  const TIMBRE = { topo: 4, arq: 'assets/logo-timbre.jpg', alt: 24, prop: 900 / 837 };
   let logoCache = null;
   async function carregarLogo() {
     if (logoCache) return logoCache;
