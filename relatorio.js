@@ -68,13 +68,13 @@
   /* Formatação ABNT (NBR 14724) aplicada ao Word e ao PDF:
      A4; margens superior e esquerda 3 cm, inferior e direita 2 cm; fonte Arial 12 (Helvetica no PDF, de mesmas medidas);
      espaçamento 1,5 entre linhas; título centralizado em negrito e maiúsculas; seções em negrito e maiúsculas;
-     numeração em algarismos arábicos no canto superior direito, a 2 cm das bordas superior e direita. */
+     numeração em algarismos arábicos no rodapé, à direita (pedido do usuário; a NBR 14724 indica o canto superior). */
   const ABNT = { topo: 30, esq: 30, base: 20, dir: 20, fonte: 12, entrelinha: 1.5, recuo: 12.5, pagina: 10 };
   const mmTwip = mm => Math.round(mm * 56.6929);
 
   async function word(mes, ctx) {
     await carregarDocx();
-    const { Document, Packer, Paragraph, TextRun, AlignmentType, Header, PageNumber } = window.docx;
+    const { Document, Packer, Paragraph, TextRun, AlignmentType, Footer, PageNumber } = window.docx;
     const font = 'Arial', meia = ABNT.fonte * 2, linha = Math.round(240 * ABNT.entrelinha);
     const P = (text, o = {}) => new Paragraph({
       alignment: o.center ? AlignmentType.CENTER : AlignmentType.LEFT,
@@ -91,15 +91,15 @@
         c.linhas.forEach(l => kids.push(P(`- ${l}`, { indent: true })));
       });
     });
-    const cabecalho = new Header({ children: [new Paragraph({ alignment: AlignmentType.RIGHT,
+    const rodape = new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT,
       children: [new TextRun({ children: [PageNumber.CURRENT], font, size: ABNT.pagina * 2 })] })] });
     const doc = new Document({
       creator: 'Escala das Carretas', title: titulo(mes),
       styles: { default: { document: { run: { font, size: meia } } } },
       sections: [{
         properties: { page: { size: { width: 11906, height: 16838 },
-          margin: { top: mmTwip(ABNT.topo), left: mmTwip(ABNT.esq), bottom: mmTwip(ABNT.base), right: mmTwip(ABNT.dir), header: mmTwip(20), footer: mmTwip(10) } } },
-        headers: { default: cabecalho }, children: kids
+          margin: { top: mmTwip(ABNT.topo), left: mmTwip(ABNT.esq), bottom: mmTwip(ABNT.base), right: mmTwip(ABNT.dir), header: mmTwip(12.5), footer: mmTwip(10) } } },
+        footers: { default: rodape }, children: kids
       }]
     });
     const blob = await Packer.toBlob(doc);
@@ -134,7 +134,7 @@
     const total = doc.getNumberOfPages();
     for (let i = 1; i <= total; i++) {
       doc.setPage(i); doc.setFont('helvetica', 'normal'); doc.setFontSize(ABNT.pagina);
-      doc.text(String(i), 210 - 20, 20, { align: 'right' });
+      doc.text(String(i), 210 - ABNT.dir, 297 - 10, { align: 'right' });
     }
     return { blob: doc.output('blob'), nome: nomeArquivo(mes, 'pdf') };
   }
