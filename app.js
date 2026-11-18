@@ -749,6 +749,7 @@
     $('#contaPerfil').textContent = admin() ? 'Administrador' : 'Enfermagem';
     document.querySelectorAll('.so-admin').forEach(x => x.classList.toggle('hidden', !admin()));
     $('#versao').textContent = 'versão ' + C.versao;
+    $('#ano').textContent = String(Math.max(2026, new Date().getFullYear()));
     try { await carregarBase(); } catch (e) { mostrar('app'); $('#conteudo').innerHTML = `<div class="card vazio"><h2>Não foi possível carregar os dados</h2><p>${esc(msgErro(e))}</p></div>`; return; }
     mostrar('app');
     const h = lerHash();

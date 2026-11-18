@@ -107,7 +107,7 @@ html.em-quadro body{display:none!important}
 
 main{padding-top:22px;padding-bottom:40px;min-height:50vh}
 main:focus{outline:none}
-.rodape{display:flex;justify-content:center;gap:10px;padding-top:14px;padding-bottom:24px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+.rodape{display:flex;flex-wrap:wrap;justify-content:center;text-align:center;gap:4px 8px;padding-top:14px;padding-bottom:24px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
 
 /* Abas embaixo (celular) */
 .abas{display:none}
@@ -124,7 +124,7 @@ main:focus{outline:none}
   .faixa-acoes .btn{flex:1}
   .resumo{display:none}
   main{padding-bottom:110px}
-  .rodape{padding-bottom:96px}
+  .rodape{padding-bottom:96px;flex-direction:column;align-items:center;gap:2px}.rodape .sep{display:none}
   .abas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:25;background:#fff;border-top:1px solid var(--line);padding:4px 4px calc(6px + env(safe-area-inset-bottom))}
   .abas a,.abas button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;font-size:11.5px;font-weight:500;color:var(--muted);padding:6px 0;min-height:52px;border:0;background:transparent;cursor:pointer}
   .abas .i{width:22px;height:22px}
