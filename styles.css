@@ -210,6 +210,9 @@ tbody tr:last-child td{border-bottom:0}
 .pend li span{color:var(--muted)}
 .rel-opcoes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px;padding:4px 16px 14px}
 .papel{background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);padding:56px 40px 40px 56px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;color:#000;overflow-wrap:anywhere}
+.timbre{display:flex;justify-content:space-between;align-items:flex-start;margin:-28px 0 24px}
+.timbre img{display:block;height:auto}
+.timbre .t-esq{width:91px}.timbre .t-dir{width:53px}
 .papel h2{font-size:16px;text-align:center;margin:0 0 24px;text-transform:uppercase}
 .papel h3{font-size:16px;margin:24px 0 4px;text-transform:uppercase}
 .papel .cn{font-weight:700;margin:8px 0 0}
@@ -220,6 +223,7 @@ tbody tr:last-child td{border-bottom:0}
   .rel-opcoes{grid-template-columns:1fr}
   .papel{padding:22px 16px 18px 22px;font-size:13px;border-radius:10px}
   .papel h2,.papel h3{font-size:13px}
+  .timbre{margin:-6px 0 16px}.timbre .t-esq{width:64px}.timbre .t-dir{width:38px}
   .papel .ln{margin-left:14px}
 }
 

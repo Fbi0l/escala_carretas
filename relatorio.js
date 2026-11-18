@@ -70,11 +70,37 @@
      espaçamento 1,5 entre linhas; título centralizado em negrito e maiúsculas; seções em negrito e maiúsculas;
      numeração em algarismos arábicos no rodapé, à direita (pedido do usuário; a NBR 14724 indica o canto superior). */
   const ABNT = { topo: 30, esq: 30, base: 20, dir: 20, fonte: 12, entrelinha: 1.5, recuo: 12.5, pagina: 10 };
+  /* Papel timbrado (logos do termo do Inventário): Embrag à esquerda e ASBRAS à direita, em todas as páginas,
+     dentro da margem superior (de 0,9 cm a 2,65 cm do topo). O texto continua começando a 3 cm. */
+  const TIMBRE = {
+    topo: 9,
+    logos: [
+      { arq: 'assets/logo-embrag.jpg', alt: 14, prop: 245 / 142, lado: 'esq' },
+      { arq: 'assets/logo-asbras.jpg', alt: 17.5, prop: 209 / 261, lado: 'dir' }
+    ]
+  };
+  let logosCache = null;
+  async function carregarLogos() {
+    if (logosCache) return logosCache;
+    const lidos = await Promise.all(TIMBRE.logos.map(async l => {
+      const r = await fetch(l.arq, { cache: 'force-cache' });
+      if (!r.ok) throw new Error('Não foi possível carregar as logos do papel timbrado.');
+      return { ...l, dados: new Uint8Array(await r.arrayBuffer()), larg: l.alt * l.prop };
+    }));
+    logosCache = lidos; return lidos;
+  }
   const mmTwip = mm => Math.round(mm * 56.6929);
 
   async function word(mes, ctx) {
     await carregarDocx();
-    const { Document, Packer, Paragraph, TextRun, AlignmentType, Footer, PageNumber } = window.docx;
+    const { Document, Packer, Paragraph, TextRun, AlignmentType, Header, Footer, PageNumber, ImageRun, TabStopType, TabStopPosition } = window.docx;
+    const logos = await carregarLogos(), px = mm => Math.round(mm * 3.7795);
+    const [le, ld] = logos;
+    const cabecalho = new Header({ children: [new Paragraph({ tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }], children: [
+      new ImageRun({ type: 'jpg', data: le.dados, transformation: { width: px(le.larg), height: px(le.alt) }, altText: { name: 'Embrag', description: 'Logo Embrag', title: 'Embrag' } }),
+      new TextRun({ text: '\t' }),
+      new ImageRun({ type: 'jpg', data: ld.dados, transformation: { width: px(ld.larg), height: px(ld.alt) }, altText: { name: 'ASBRAS', description: 'Logo ASBRAS', title: 'ASBRAS' } })
+    ] })] });
     const font = 'Arial', meia = ABNT.fonte * 2, linha = Math.round(240 * ABNT.entrelinha);
     const P = (text, o = {}) => new Paragraph({
       alignment: o.center ? AlignmentType.CENTER : AlignmentType.LEFT,
@@ -98,8 +124,8 @@
       styles: { default: { document: { run: { font, size: meia } } } },
       sections: [{
         properties: { page: { size: { width: 11906, height: 16838 },
-          margin: { top: mmTwip(ABNT.topo), left: mmTwip(ABNT.esq), bottom: mmTwip(ABNT.base), right: mmTwip(ABNT.dir), header: mmTwip(12.5), footer: mmTwip(10) } } },
-        footers: { default: rodape }, children: kids
+          margin: { top: mmTwip(ABNT.topo), left: mmTwip(ABNT.esq), bottom: mmTwip(ABNT.base), right: mmTwip(ABNT.dir), header: mmTwip(TIMBRE.topo), footer: mmTwip(10) } } },
+        headers: { default: cabecalho }, footers: { default: rodape }, children: kids
       }]
     });
     const blob = await Packer.toBlob(doc);
@@ -108,7 +134,7 @@
 
   // PDF A4 com a mesma formatação ABNT do Word. Texto real (pesquisável e copiável), não imagem.
   async function pdf(mes, ctx) {
-    await carregarPdf();
+    const [, logos] = await Promise.all([carregarPdf(), carregarLogos()]);
     const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
     doc.setProperties({ title: titulo(mes), creator: 'Escala das Carretas' });
     const L = ABNT.esq, W = 210 - ABNT.esq - ABNT.dir, TOPO = ABNT.topo, BASE = 297 - ABNT.base;
@@ -135,6 +161,7 @@
     for (let i = 1; i <= total; i++) {
       doc.setPage(i); doc.setFont('helvetica', 'normal'); doc.setFontSize(ABNT.pagina);
       doc.text(String(i), 210 - ABNT.dir, 297 - 10, { align: 'right' });
+      logos.forEach(l => doc.addImage(l.dados, 'JPEG', l.lado === 'esq' ? ABNT.esq : 210 - ABNT.dir - l.larg, TIMBRE.topo, l.larg, l.alt));
     }
     return { blob: doc.output('blob'), nome: nomeArquivo(mes, 'pdf') };
   }
