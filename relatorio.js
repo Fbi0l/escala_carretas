@@ -64,7 +64,7 @@
     }));
   }
   const carregarDocx = () => carregar('docx-9.15.4.js', () => !!window.docx, 'Word');
-  const carregarPdf = () => carregar('jspdf-3.0.4.js', () => !!(window.jspdf && window.jspdf.jsPDF), 'PDF');
+  const carregarPdf = () => carregar('jspdf-4.2.1.js', () => !!(window.jspdf && window.jspdf.jsPDF), 'PDF');
   const nomeArquivo = (mes, ext) => { const [y, m] = mes.split('-'); return `DIVISAO_DE_MEDICOS_POR_CNES_${MESES[+m - 1]}${y.slice(2)}.${ext}`; };
   /* Formatação ABNT (NBR 14724) aplicada ao Word e ao PDF:
      A4; margens superior e esquerda 3 cm, inferior e direita 2 cm; fonte Arial 12 (Helvetica no PDF, de mesmas medidas);

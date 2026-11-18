@@ -29,7 +29,7 @@ Sistema para montar a escala dos médicos em cada carreta (por CNES) e gerar o r
 - Conta bloqueada perde o acesso na hora (as regras do banco conferem o bloqueio a cada consulta).
 - Senhas: mínimo de 8 caracteres e recusa de senhas vazadas (Have I Been Pwned, por k-anonimato).
 - Política de segurança (CSP): o site só carrega arquivos dele mesmo e só conversa com o Supabase do projeto.
-  As bibliotecas ficam em `vendor/` (Supabase JS 2.119.0, docx 9.15.4 e jsPDF 3.0.4), sem CDN.
+  As bibliotecas ficam em `vendor/` (Supabase JS 2.119.0, docx 9.15.4 e jsPDF 4.2.1), sem CDN.
 - Toda alteração em ações, médicos e carretas fica registrada na **auditoria** (visível ao administrador).
 
 ## Estrutura
