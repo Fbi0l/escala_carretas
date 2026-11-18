@@ -1,4 +1,5 @@
-// Gestão de usuários (somente administradores): convites, perfis, bloqueio, senha e exclusão.
+// Gestão de usuários: convites, perfis, bloqueio, senha e exclusão (somente administradores).
+// Exceção: "self_password" troca a senha da própria pessoa, para qualquer perfil, com as mesmas regras do cadastro.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { cors, ehPerfil, MSG_SENHA_TAMANHO, MSG_SENHA_VAZADA, resposta, SENHA_MAX, SENHA_MIN, senhaVazada, sha256, UUID } from "../_shared/comum.ts";
 
@@ -18,13 +19,27 @@ Deno.serve(async (req: Request) => {
     // A identidade vem do token validado, nunca do corpo do pedido. Conta bloqueada não administra.
     if (eu.banned_until && new Date(eu.banned_until) > new Date()) return resposta(req, { error: "Conta bloqueada." }, 403);
     const { data: meu } = await admin.from("perfis_usuarios").select("perfil").eq("usuario_id", eu.id).maybeSingle();
+    const corpo = await req.json().catch(() => ({}));
+
+    if (corpo.action === "self_password") {
+      if (!meu?.perfil) return resposta(req, { error: "Sua conta não tem acesso a este sistema." }, 403);
+      const senha = String(corpo.password || "");
+      if (senha.length < SENHA_MIN || senha.length > SENHA_MAX) return resposta(req, { error: MSG_SENHA_TAMANHO }, 400);
+      if (await senhaVazada(senha)) return resposta(req, { error: MSG_SENHA_VAZADA }, 400);
+      const { error } = await admin.auth.admin.updateUserById(eu.id, { password: senha });
+      if (error) return resposta(req, { error: "Não foi possível trocar a senha." }, 400);
+      const { error: errAud } = await admin.from("auditoria").insert({ autor_id: eu.id, autor_email: eu.email ?? null, acao: "trocou_a_propria_senha", entidade: "usuario", entidade_id: eu.id, descricao: eu.email || eu.id });
+      if (errAud) console.error("Falha ao registrar auditoria", errAud.message);
+      return resposta(req, { message: "Senha alterada." });
+    }
+
     if (meu?.perfil !== "administrador") return resposta(req, { error: "Somente administradores podem gerenciar usuários." }, 403);
 
     const auditar = async (acao: string, entidade_id: string | null, descricao: string, detalhes: Record<string, unknown> = {}) => {
       const { error } = await admin.from("auditoria").insert({ autor_id: eu.id, autor_email: eu.email ?? null, acao, entidade: "usuario", entidade_id, descricao, detalhes });
       if (error) console.error("Falha ao registrar auditoria", acao, error.message);
     };
-    const body = await req.json().catch(() => ({}));
+    const body = corpo;
     const acao = String(body.action || "");
     const alvoId = String(body.userId || "");
     const alvo = async () => {

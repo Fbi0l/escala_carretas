@@ -2,7 +2,7 @@
 const ORIGENS = ["https://fbi0l.github.io"];
 export function cors(req: Request): Record<string, string> {
   const origem = req.headers.get("Origin") || "";
-  const permitida = ORIGENS.includes(origem) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origem);
+  const permitida = ORIGENS.includes(origem);
   return {
     "Access-Control-Allow-Origin": permitida ? origem : ORIGENS[0],
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",

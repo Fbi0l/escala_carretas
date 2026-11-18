@@ -3,5 +3,12 @@
 window.ESCALA_CONFIG = Object.freeze({
   supabaseUrl: 'https://nbqepxdoatjemxefgtzz.supabase.co',
   supabaseKey: 'sb_publishable_DhMIzJKxm2fHGVRqokie2g_xloCEhe4',
-  versao: '1.0.8'
+  versao: '1.0.9'
 });
+
+/* Proteção contra "clickjacking": o GitHub Pages não deixa enviar o cabeçalho que proíbe exibir o site dentro de
+   outra página. Se isso acontecer, o sistema some e tenta abrir no lugar da página de fora. */
+if (window.top !== window.self) {
+  document.documentElement.classList.add('em-quadro');
+  try { window.top.location.replace(window.self.location.href); } catch (_) { /* página de fora bloqueou; o site fica oculto */ }
+}

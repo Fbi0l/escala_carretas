@@ -549,7 +549,7 @@
       <form class="modal-b" id="snForm" novalidate>
         <label class="field"><span>Nova senha</span><input id="sn1" class="input" type="password" autocomplete="new-password" minlength="8" maxlength="128" autofocus></label>
         <label class="field"><span>Confirmar</span><input id="sn2" class="input" type="password" autocomplete="new-password"></label>
-        <span class="hint">Pelo menos 8 caracteres.${minha ? '' : ' Senhas que já vazaram na internet são recusadas. Avise a pessoa da nova senha por um canal seguro.'}</span>
+        <span class="hint">Pelo menos 8 caracteres. Senhas que já vazaram na internet são recusadas.${minha ? '' : ' Avise a pessoa da nova senha por um canal seguro.'}</span>
       </form>
       <div class="modal-f"><button class="btn" type="button" data-acao="fechar">Cancelar</button><button class="btn primary" type="button" id="snOk">Salvar senha</button></div></div>`);
     $('#snOk').onclick = async () => {
@@ -558,7 +558,7 @@
       if (s1 !== s2) return toast('As senhas não conferem.', true);
       b.disabled = true;
       try {
-        if (minha) { const { error } = await sb.auth.updateUser({ password: s1 }); if (error) throw error; }
+        if (minha) await chamarGestao({ action: 'self_password', password: s1 });
         else await chamarGestao({ action: 'password', userId: alvo.id, password: s1 });
         fecharModal(); toast('Senha alterada.');
       } catch (e) { toast(msgErro(e), true); b.disabled = false; }
