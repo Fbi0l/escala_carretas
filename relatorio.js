@@ -110,7 +110,7 @@
     const rodape = new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT,
       children: [new TextRun({ children: [PageNumber.CURRENT], font, size: ABNT.pagina * 2 })] })] });
     const doc = new Document({
-      creator: 'Escala das Carretas', title: `${TITULO} – ${titulo(mes)}`,
+      creator: 'Carreta+', title: `${TITULO} – ${titulo(mes)}`,
       styles: { default: { document: { run: { font, size: meia } } } },
       sections: [{
         properties: { page: { size: { width: 11906, height: 16838 },
@@ -126,7 +126,7 @@
   async function pdf(mes, ctx) {
     const [, logo] = await Promise.all([carregarPdf(), carregarLogo()]);
     const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
-    doc.setProperties({ title: `${TITULO} – ${titulo(mes)}`, creator: 'Escala das Carretas' });
+    doc.setProperties({ title: `${TITULO} – ${titulo(mes)}`, creator: 'Carreta+' });
     const L = ABNT.esq, W = 210 - ABNT.esq - ABNT.dir, TOPO = ABNT.topo, BASE = 297 - ABNT.base;
     const pt = 0.3528, lh = ABNT.fonte * pt * ABNT.entrelinha; // altura de uma linha com entrelinha 1,5 (≈ 6,35 mm)
     let y = TOPO;

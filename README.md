@@ -1,4 +1,4 @@
-# Escala das Carretas
+# Carreta+ · Escala médica das carretas
 
 Sistema para montar a escala dos médicos em cada carreta (por CNES) e gerar o relatório mensal
 **"Divisão de médicos por CNES"** que vai para o operacional fazer o BPA.

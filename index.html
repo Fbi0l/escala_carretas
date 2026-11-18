@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self' https://nbqepxdoatjemxefgtzz.supabase.co wss://nbqepxdoatjemxefgtzz.supabase.co; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Escala das Carretas</title>
+  <title>Carreta+</title>
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -14,13 +14,13 @@
   <meta name="color-scheme" content="light">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Escala">
+  <meta name="apple-mobile-web-app-title" content="Carreta+">
   <link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=1.0.12">
-  <script src="config.js?v=1.0.12" defer></script>
+  <link rel="stylesheet" href="styles.css?v=1.0.13">
+  <script src="config.js?v=1.0.13" defer></script>
   <script src="vendor/supabase-2.119.0.js" defer></script>
-  <script src="relatorio.js?v=1.0.12" defer></script>
-  <script src="app.js?v=1.0.12" defer></script>
+  <script src="relatorio.js?v=1.0.13" defer></script>
+  <script src="app.js?v=1.0.13" defer></script>
 </head>
 <body>
 <a class="skip" href="#conteudo">Pular para o conteúdo</a>
@@ -52,7 +52,8 @@
 <section id="telaLogin" class="auth hidden" aria-labelledby="loginTitulo">
   <form id="formLogin" class="auth-card" novalidate>
     <span class="auth-logo" aria-hidden="true"><svg class="logo-m"><use href="#i-logo"/></svg></span>
-    <h1 id="loginTitulo">Escala das Carretas</h1>
+    <h1 id="loginTitulo">Carreta+</h1>
+    <p class="auth-sub">Escala médica das carretas</p>
     <p class="muted">Entre com o e-mail e a senha da sua conta.</p>
     <label>E-mail<input id="loginEmail" name="email" type="email" autocomplete="username" spellcheck="false" required></label>
     <label>Senha<input id="loginSenha" name="password" type="password" autocomplete="current-password" required></label>
@@ -67,7 +68,7 @@
   <form id="formCadastro" class="auth-card" novalidate>
     <span class="auth-logo" aria-hidden="true"><svg class="logo-m"><use href="#i-logo"/></svg></span>
     <h1 id="cadTitulo">Criar sua conta</h1>
-    <p class="muted">Você recebeu um convite para a Escala das Carretas. O link vale por 48 horas e só pode ser usado uma vez.</p>
+    <p class="muted">Você recebeu um convite para o Carreta+, a escala médica das carretas. O link vale por 48 horas e só pode ser usado uma vez.</p>
     <label>Nome completo<input id="cadNome" name="name" autocomplete="name" maxlength="150" required></label>
     <label>E-mail<input id="cadEmail" name="email" type="email" autocomplete="email" spellcheck="false" maxlength="200" required></label>
     <label>Senha<input id="cadSenha" name="new-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
@@ -83,9 +84,9 @@
 <div id="app" class="hidden">
   <header class="topo">
     <div class="topo-linha wrap">
-      <a class="marca" href="#escalas" aria-label="Escala das Carretas, início">
+      <a class="marca" href="#escalas" aria-label="Carreta+, início">
         <span class="marca-logo" aria-hidden="true"><svg class="logo-m"><use href="#i-logo"/></svg></span>
-        <span>Escala das Carretas</span>
+        <span>Carreta+</span>
       </a>
       <nav class="atalhos" aria-label="Cadastros">
         <a href="#medicos" data-nav="medicos"><svg class="i" aria-hidden="true"><use href="#i-steth"/></svg>Médicos</a>
@@ -115,7 +116,7 @@
     <a href="#medicos" data-nav="medicos"><svg class="i" aria-hidden="true"><use href="#i-steth"/></svg>Médicos</a>
     <button type="button" id="maisBtn" aria-haspopup="dialog"><svg class="i" aria-hidden="true"><use href="#i-more"/></svg>Mais</button>
   </nav>
-  <footer class="rodape wrap"><span>Escala das Carretas</span><span id="versao"></span></footer>
+  <footer class="rodape wrap"><span>Carreta+ · Escala médica das carretas</span><span id="versao"></span></footer>
 </div>
 
 <div id="carregando" class="carregando" role="status"><span class="spinner"></span> Carregando…</div>
