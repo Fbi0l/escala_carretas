@@ -3,7 +3,7 @@
 window.ESCALA_CONFIG = Object.freeze({
   supabaseUrl: 'https://nbqepxdoatjemxefgtzz.supabase.co',
   supabaseKey: 'sb_publishable_DhMIzJKxm2fHGVRqokie2g_xloCEhe4',
-  versao: '1.0.9'
+  versao: '1.0.10'
 });
 
 /* Proteção contra "clickjacking": o GitHub Pages não deixa enviar o cabeçalho que proíbe exibir o site dentro de

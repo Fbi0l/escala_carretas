@@ -221,7 +221,7 @@
           <div class="rel-opcoes">${opt('placa', 'Placa da carreta')}${opt('nomeCarreta', 'Nome da carreta')}${opt('cbo', 'CBO e descrição')}${opt('funcao', 'Função (MASTO, GINECO, USG…)')}</div>
         </details>
         <div class="papel" id="papel" aria-label="Prévia do relatório">
-          <div class="timbre" aria-hidden="true"><img src="assets/logo-embrag.jpg" alt="" class="t-esq"><img src="assets/logo-asbras.jpg" alt="" class="t-dir"></div>
+          <div class="timbre" aria-hidden="true"><img src="assets/logo-timbre.jpg" alt=""></div>
           <h2>${esc(R.TITULO)}<br>${esc(R.titulo(S.mes))}</h2>
           ${blocos.map(b => `<h3>${esc(b.titulo)}</h3>${b.carretas.map(c => `<div class="cn">• ${esc(c.cab)}</div>${c.linhas.map(l => `<div class="ln">- ${esc(l)}</div>`).join('')}`).join('')}`).join('')}
         </div>
