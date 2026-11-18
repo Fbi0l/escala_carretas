@@ -320,44 +320,44 @@
   function vSobre(faixa, main) {
     faixa.innerHTML = `${voltar()}<h1 class="titulo-pag">Sobre o Carreta+</h1>`;
     main.innerHTML = `<article class="card sobre">
-      <p class="sobre-lead">O <b>Carreta+</b> organiza a escala dos médicos nas carretas de saúde (Mulher I, Mulher II, Mulher III e Tomografia) e gera automaticamente o relatório mensal enviado ao operacional. Foi desenvolvido internamente, sob medida para a rotina da equipe, e publicado em novembro de 2026.</p>
+      <h2>1 Introdução</h2>
+      <p>Este texto apresenta as razões que levaram ao desenvolvimento do Carreta+, sistema usado para montar a escala dos médicos nas carretas de saúde e gerar o relatório mensal encaminhado ao setor operacional. Ele descreve como o trabalho era feito antes, o que o sistema passou a oferecer e por que ele é útil para a rotina da equipe.</p>
+      <p>O Carreta+ atende às quatro carretas em operação: Mulher I, Mulher II, Mulher III e Tomografia. Funciona no navegador e pode ser instalado no celular ou no computador. Foi desenvolvido internamente e entrou no ar em novembro de 2026.</p>
 
-      <h2>Por que o app foi criado</h2>
-      <p>As carretas atendem em ações itinerantes, em locais e datas diferentes ao longo do mês. Cada carreta tem o seu próprio CNES, e cada ação reúne médicos de várias especialidades distribuídos entre as carretas. Antes do Carreta+, essa divisão era montada e conferida à mão:</p>
-      <ul>
-        <li>os dados dos médicos (nome, CNS, CBO e as carretas em cujo CNES estão cadastrados) ficavam espalhados em fichas e documentos;</li>
-        <li>a escala de cada ação era digitada de novo, ação por ação;</li>
-        <li>o relatório mensal para o operacional, base do BPA, era redigido e formatado manualmente;</li>
-        <li>um médico escalado numa carreta em cujo CNES não está cadastrado, ou com o CBO errado, só era percebido depois.</li>
-      </ul>
-      <p>O resultado era retrabalho, risco de erro e dificuldade para consultar as escalas dos meses anteriores.</p>
+      <h2>2 Desenvolvimento</h2>
+      <h3>2.1 Como o trabalho era feito</h3>
+      <p>Cada carreta tem um número próprio no Cadastro Nacional de Estabelecimentos de Saúde (CNES). Em cada ação, os médicos são distribuídos entre as carretas conforme a especialidade, e essa divisão precisa ser informada ao setor operacional no fim do mês para o registro da produção no Boletim de Produção Ambulatorial (BPA).</p>
+      <p>Até então, a divisão era montada à mão. O sistema usado pela equipe não exporta essas informações, e os dados dos médicos estavam espalhados em fichas e documentos. A cada ação, a escala era digitada de novo; no fim do mês, o relatório era redigido e formatado do zero.</p>
+      <p>A conferência também era manual. Se um médico fosse escalado numa carreta em cujo CNES não está cadastrado, ou com o código da Classificação Brasileira de Ocupações (CBO) errado, o problema costumava aparecer só depois, quando a produção já tinha sido enviada.</p>
 
-      <h2>Para que serve</h2>
-      <p>Reunir em um só lugar o cadastro dos médicos, a escala de cada ação e o relatório mensal, reduzindo o trabalho manual e os erros que chegam ao operacional.</p>
-      <ol>
-        <li>Manter um cadastro único dos médicos, com CNS, CBO e as carretas em cujo CNES cada um está cadastrado.</li>
-        <li>Permitir que a enfermagem monte a escala de cada ação em poucos minutos.</li>
-        <li>Conferir cada escala e avisar sobre pendências antes do envio do relatório.</li>
-        <li>Gerar o relatório pronto, em PDF e Word, no padrão ABNT e com o papel timbrado da ASBRAS.</li>
-        <li>Guardar o histórico de todas as escalas para consulta.</li>
-        <li>Proteger os dados pessoais dos médicos, com acesso só para quem foi convidado.</li>
+      <h3>2.2 Finalidade do sistema</h3>
+      <p>O Carreta+ foi criado para concentrar em um só lugar o cadastro dos médicos, as escalas de cada ação e o relatório do mês. Com isso, pretende-se:</p>
+      <ol class="alineas">
+        <li>reduzir o tempo gasto com digitação e formatação;</li>
+        <li>diminuir os erros de CNES e CBO que chegam ao operacional;</li>
+        <li>manter o histórico das escalas disponível para consulta;</li>
+        <li>restringir o acesso aos dados pessoais dos médicos a quem precisa deles para trabalhar.</li>
       </ol>
 
-      <h2>Utilidade no dia a dia</h2>
-      <dl class="sobre-dl">
-        <dt>Enfermagem</dt><dd>Monta a escala sem redigitar dados e recebe avisos na hora sobre CNES, CBO e médico repetido no mesmo dia.</dd>
-        <dt>Administração</dt><dd>Mantém um cadastro único e atualizado, controla quem tem acesso e acompanha quantas ações cada médico fez no mês.</dd>
-        <dt>Operacional</dt><dd>Recebe o relatório sempre no mesmo formato e com menos erros para corrigir antes do BPA.</dd>
-        <dt>Gestão</dt><dd>Tem o histórico das escalas, mês a mês, para consulta, conferência e prestação de contas.</dd>
-      </dl>
+      <h3>2.3 Funcionamento</h3>
+      <p>O acesso é feito com e-mail e senha, e só entra quem recebe um convite do administrador. Há dois perfis. O administrador cadastra médicos e carretas e controla os usuários. A enfermagem monta as escalas e gera o relatório.</p>
+      <p>Para registrar uma ação, a enfermagem informa o local e a data e escolhe os médicos de cada carreta. O sistema já sugere o CBO de cada médico e avisa na hora quando alguém é escalado numa carreta em cujo CNES não está cadastrado, ou quando o mesmo médico aparece em duas ações no mesmo dia. Uma escala pode ser duplicada para outro dia, e as escalas de um mês podem servir de base para o mês seguinte.</p>
+      <p>O relatório é montado a partir das escalas do mês, separado por ação e por carreta. Pode ser baixado em PDF ou Word, já no padrão da ABNT e com o papel timbrado da ASBRAS, ou copiado como texto para envio por WhatsApp. Antes do envio, o sistema lista as pendências encontradas e mostra quantas ações cada médico fez no mês.</p>
 
-      <h2>Importância</h2>
-      <p><b>Produção e faturamento.</b> O relatório de escala é a base para registrar a produção no BPA. Para a produção ser aceita, cada médico precisa estar cadastrado no CNES da carreta em que atendeu, com o CBO correto. Ao conferir isso antes do envio, o Carreta+ ajuda a evitar produção recusada e retrabalho.</p>
-      <p><b>Padronização.</b> O relatório sai sempre igual, no padrão ABNT e com a identidade da ASBRAS.</p>
-      <p><b>Proteção de dados (LGPD).</b> Só entra quem foi convidado, cada perfil vê e altera apenas o que precisa, quem não está conectado não lê nenhum dado, senhas fracas ou vazadas são recusadas e as ações importantes ficam registradas numa auditoria.</p>
+      <h3>2.4 Benefícios para a rotina</h3>
+      <p>A mudança mais visível está no tempo. A escala de uma ação passa a ser montada em poucos minutos, e o relatório do mês fica pronto assim que as escalas são lançadas, sem precisar ser redigido.</p>
+      <p>A qualidade da informação também melhora. Como os dados de cada médico ficam num cadastro único, um erro de digitação não se repete em várias escalas, e os avisos aparecem antes de o relatório sair. O operacional recebe o documento sempre no mesmo formato, o que facilita a conferência e o lançamento no BPA.</p>
+      <p>Além disso, o histórico fica guardado. As escalas de meses anteriores podem ser consultadas a qualquer momento, sem a necessidade de procurar arquivos antigos.</p>
 
-      <h2>Conclusão</h2>
-      <p>O Carreta+ transforma uma rotina manual, demorada e sujeita a erros em um processo simples, conferido e padronizado: economiza tempo da enfermagem, entrega ao operacional um relatório confiável e protege os dados dos médicos, sem custo de licença para a instituição.</p>
+      <h3>2.5 Produção e proteção de dados</h3>
+      <p>O relatório de escala é a base que o operacional usa para registrar a produção. Para que ela seja aceita, cada médico precisa estar cadastrado no CNES da carreta em que atendeu, com o CBO correto. Um erro na escala pode resultar em produção recusada e em retrabalho para corrigi-la, e é exatamente nesse ponto que a conferência do Carreta+ atua.</p>
+      <p>O cadastro dos médicos inclui dados pessoais, como o número do Cartão Nacional de Saúde (CNS), e por isso está sujeito à Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018). O sistema foi construído levando isso em conta: quem não tem conta não consegue ler nenhuma informação, cada perfil acessa apenas o que precisa, uma conta pode ser bloqueada imediatamente e as alterações importantes ficam registradas.</p>
+
+      <h3>2.6 Custos</h3>
+      <p>O sistema foi desenvolvido internamente e usa serviços gratuitos para hospedar o site e o banco de dados. Não há licença, mensalidade ou contrato com fornecedor.</p>
+
+      <h2>3 Considerações finais</h2>
+      <p>O Carreta+ substitui um processo manual e repetitivo por um fluxo único, em que a escala é lançada uma vez e o relatório sai pronto. Para a enfermagem, isso representa menos tempo com digitação. Para o operacional, um relatório padronizado e conferido antes do envio. Para a instituição, mais cuidado no tratamento dos dados dos médicos, sem custo adicional.</p>
     </article>`;
   }
 

@@ -284,9 +284,15 @@ tbody tr:last-child td{border-bottom:0}
 .rodape a{color:inherit}
 .sobre{max-width:760px;padding:28px 32px;font-size:15px;line-height:1.6}
 .sobre-lead{font-size:16.5px;margin-top:0}
-.sobre h2{font-size:17px;margin:26px 0 8px;color:var(--accent)}
+.sobre h2{font-size:16px;margin:28px 0 8px;text-transform:uppercase;letter-spacing:.02em}
+.sobre h2:first-child{margin-top:0}
+.sobre h3{font-size:15px;margin:20px 0 6px}
+.sobre p{margin:0 0 10px;text-align:justify;hyphens:auto}
+.sobre .alineas{list-style:none;padding-left:0;counter-reset:al}
+.sobre .alineas li{counter-increment:al;padding-left:26px;position:relative}
+.sobre .alineas li::before{content:counter(al,lower-alpha) ")";position:absolute;left:0}
 .sobre ul,.sobre ol{padding-left:22px;margin:8px 0}
 .sobre li{margin:4px 0}
 .sobre-dl{display:grid;grid-template-columns:150px 1fr;gap:10px 16px;margin:8px 0}
 .sobre-dl dt{font-weight:600}.sobre-dl dd{margin:0}
-@media (max-width:760px){.sobre{padding:20px 18px}.sobre-dl{grid-template-columns:1fr;gap:2px}.sobre-dl dd{margin-bottom:10px}}
+@media (max-width:760px){.sobre{padding:20px 18px}.sobre p{text-align:left}.sobre-dl{grid-template-columns:1fr;gap:2px}.sobre-dl dd{margin-bottom:10px}}
