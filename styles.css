@@ -70,7 +70,7 @@ html.em-quadro body{display:none!important}
 .auth-card p{margin:0}
 .auth-card label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:#3D3842}
 .auth-logo{width:44px;height:44px;border-radius:12px;background:var(--accent);color:#fff;display:grid;place-items:center}
-.auth-logo .i{width:24px;height:24px}
+.logo-m{display:block;width:100%;height:100%}
 
 /* Topo */
 .topo{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top)}
@@ -78,7 +78,6 @@ html.em-quadro body{display:none!important}
 .marca{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;color:var(--text);text-decoration:none;letter-spacing:-.01em}
 .marca:hover{color:var(--text)}
 .marca-logo{width:30px;height:30px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center}
-.marca-logo .i{width:17px;height:17px}
 .atalhos{margin-left:auto;display:flex;gap:6px}
 .atalhos a{display:inline-flex;align-items:center;gap:6px;color:#4A4550;text-decoration:none;font-size:13.5px;font-weight:500;padding:8px 11px;border-radius:8px;border:1px solid var(--line);min-height:38px}
 .atalhos a:hover{background:var(--surface-2);color:var(--text)}

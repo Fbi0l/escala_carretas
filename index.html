@@ -16,17 +16,18 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Escala">
   <link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=1.0.11">
-  <script src="config.js?v=1.0.11" defer></script>
+  <link rel="stylesheet" href="styles.css?v=1.0.12">
+  <script src="config.js?v=1.0.12" defer></script>
   <script src="vendor/supabase-2.119.0.js" defer></script>
-  <script src="relatorio.js?v=1.0.11" defer></script>
-  <script src="app.js?v=1.0.11" defer></script>
+  <script src="relatorio.js?v=1.0.12" defer></script>
+  <script src="app.js?v=1.0.12" defer></script>
 </head>
 <body>
 <a class="skip" href="#conteudo">Pular para o conteúdo</a>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
+    <symbol id="i-logo" viewBox="0 0 100 100"><path d="M76 34A32 32 0 1 1 62 20" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="74" cy="25" r="5" fill="currentColor"/><rect x="43" y="31" width="14" height="38" rx="4" fill="currentColor"/><rect x="31" y="43" width="38" height="14" rx="4" fill="currentColor"/></symbol>
     <symbol id="i-truck" viewBox="0 0 24 24"><rect x="1" y="6" width="15" height="11" rx="1.5"/><path d="M16 10h4l3 3v4h-7z"/><circle cx="6" cy="18.5" r="2"/><circle cx="18.5" cy="18.5" r="2"/></symbol>
     <symbol id="i-cal" viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/></symbol>
     <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></symbol>
@@ -50,7 +51,7 @@
 <!-- Entrada -->
 <section id="telaLogin" class="auth hidden" aria-labelledby="loginTitulo">
   <form id="formLogin" class="auth-card" novalidate>
-    <span class="auth-logo" aria-hidden="true"><svg class="i"><use href="#i-truck"/></svg></span>
+    <span class="auth-logo" aria-hidden="true"><svg class="logo-m"><use href="#i-logo"/></svg></span>
     <h1 id="loginTitulo">Escala das Carretas</h1>
     <p class="muted">Entre com o e-mail e a senha da sua conta.</p>
     <label>E-mail<input id="loginEmail" name="email" type="email" autocomplete="username" spellcheck="false" required></label>
@@ -64,7 +65,7 @@
 <!-- Cadastro por convite -->
 <section id="telaCadastro" class="auth hidden" aria-labelledby="cadTitulo">
   <form id="formCadastro" class="auth-card" novalidate>
-    <span class="auth-logo" aria-hidden="true"><svg class="i"><use href="#i-truck"/></svg></span>
+    <span class="auth-logo" aria-hidden="true"><svg class="logo-m"><use href="#i-logo"/></svg></span>
     <h1 id="cadTitulo">Criar sua conta</h1>
     <p class="muted">Você recebeu um convite para a Escala das Carretas. O link vale por 48 horas e só pode ser usado uma vez.</p>
     <label>Nome completo<input id="cadNome" name="name" autocomplete="name" maxlength="150" required></label>
@@ -83,7 +84,7 @@
   <header class="topo">
     <div class="topo-linha wrap">
       <a class="marca" href="#escalas" aria-label="Escala das Carretas, início">
-        <span class="marca-logo" aria-hidden="true"><svg class="i"><use href="#i-truck"/></svg></span>
+        <span class="marca-logo" aria-hidden="true"><svg class="logo-m"><use href="#i-logo"/></svg></span>
         <span>Escala das Carretas</span>
       </a>
       <nav class="atalhos" aria-label="Cadastros">
