@@ -53,7 +53,7 @@
   const S = {
     eu: null, carretas: [], medicos: new Map(), acoes: [], mesesCarregados: new Set(),
     vista: 'escalas', mes: hoje().slice(0, 7), busca: '', filtroMed: 'todos', modal: null,
-    rep: { placa: true, nomeCarreta: false, cbo: true, funcao: true }, relPend: false, relOpc: false, ultimaCarga: 0
+    rep: { placa: true, nomeCarreta: false, cbo: true, funcao: true }, relPend: false, relOpc: false, relRes: false, ultimaCarga: 0
   };
   try { Object.assign(S.rep, JSON.parse(ler('escala.rep') || '{}')); } catch (_) { /* padrão */ }
   const admin = () => S.eu?.perfil === 'administrador';
@@ -95,6 +95,10 @@
     if (!al.cbo && v.length) out.push({ n: 'warn', t: 'Sem CBO' });
     const mesmo = acao.alocacoes.filter(x => x.medico_id === al.medico_id);
     if (new Set(mesmo.map(x => x.cnes)).size > 1) out.push({ n: 'warn', t: 'Em 2 carretas no mesmo dia' });
+    if (acao.data) {
+      const outra = S.acoes.find(o => o.id !== acao.id && o.data === acao.data && o.alocacoes.some(x => x.medico_id === al.medico_id));
+      if (outra) out.push({ n: 'warn', t: `Também em ${outra.local} no mesmo dia` });
+    }
     return out;
   }
 
@@ -151,7 +155,8 @@
         <h2>Nenhuma escala em ${esc(R.nomeMes(S.mes))}</h2>
         <p>Cadastre a primeira ação do mês para montar a divisão das carretas.</p>
         <p><button class="btn primary" type="button" data-acao="nova-acao">${ic('plus')}Nova escala</button>
-        <button class="btn" type="button" data-acao="ultimo-mes">Ver o último mês com escala</button></p></div>`)
+        <button class="btn" type="button" data-acao="copiar-mes">${ic('copy')}Copiar as escalas de ${esc(R.MESES[+addMes(S.mes, -1).slice(5) - 1])}</button>
+        <button class="btn ghost" type="button" data-acao="ultimo-mes">Ver o último mês com escala</button></p></div>`)
       + `<button class="fab" type="button" data-acao="nova-acao" aria-label="Nova escala">${ic('plus')}</button>`;
   }
   function cardAcao(a) {
@@ -198,6 +203,13 @@
     })));
     const pend = [...porMedico.values()].sort((a, b) => (b.err - a.err) || a.nome.localeCompare(b.nome, 'pt-BR'));
     const nErr = pend.filter(g => g.err).length;
+    // Resumo do mês por médico: em quantas ações esteve e em quais carretas.
+    const resumo = new Map();
+    acoesDoMes(S.mes).forEach(a => a.alocacoes.forEach(al => {
+      if (!resumo.has(al.medico_id)) resumo.set(al.medico_id, { nome: S.medicos.get(al.medico_id)?.nome || '(removido)', acoes: new Set(), carretas: new Set() });
+      const r = resumo.get(al.medico_id); r.acoes.add(a.id); r.carretas.add(curto(carreta(al.cnes)));
+    }));
+    const res = [...resumo.values()].sort((a, b) => (b.acoes.size - a.acoes.size) || a.nome.localeCompare(b.nome, 'pt-BR'));
     const opt = (k, t) => `<label class="check"><input type="checkbox" data-rep="${k}" ${S.rep[k] ? 'checked' : ''}> ${t}</label>`;
     const nEsc = blocos.reduce((n, b) => n + b.carretas.reduce((k, c) => k + c.linhas.length, 0), 0);
     main.innerHTML = !blocos.length ? `<div class="card vazio"><h2>Sem escalas em ${esc(R.nomeMes(S.mes))}</h2><p>O relatório aparece quando houver ações cadastradas no mês.</p></div>` : `
@@ -216,6 +228,13 @@
             <ul class="pend">${pend.map(g => `<li><b>${esc(g.nome)}</b>${[...g.itens].map(([t, onde]) => `<span>${esc(t)}: ${esc([...onde].join(', '))}</span>`).join('')}</li>`).join('')}</ul>
           </details>`
           : `<div class="card rel-bloco ok">${ic('check')}<span>Todos os médicos estão vinculados ao CNES da carreta em que foram escalados.</span></div>`}
+        <details class="card rel-bloco neutro" data-det="res" ${S.relRes ? 'open' : ''}>
+          <summary><span><b>Resumo por médico</b><span class="small muted"> · ${plural(res.length, 'médico escalado', 'médicos escalados')} no mês</span></span></summary>
+          <div class="res-wrap"><table class="res-tab">
+            <thead><tr><th scope="col">Médico</th><th scope="col" class="n">Ações</th><th scope="col">Carretas</th></tr></thead>
+            <tbody>${res.map(r => `<tr><td>${esc(r.nome)}</td><td class="n num">${r.acoes.size}</td><td>${esc([...r.carretas].join(', '))}</td></tr>`).join('')}</tbody>
+          </table></div>
+        </details>
         <details class="card rel-bloco neutro" data-det="opc" ${S.relOpc ? 'open' : ''}>
           <summary><span><b>Personalizar o relatório</b><span class="small muted"> · o que aparece em cada linha</span></span></summary>
           <div class="rel-opcoes">${opt('placa', 'Placa da carreta')}${opt('nomeCarreta', 'Nome da carreta')}${opt('cbo', 'CBO e descrição')}${opt('funcao', 'Função (MASTO, GINECO, USG…)')}</div>
@@ -368,14 +387,44 @@
     $('#modal-root').innerHTML = ''; S.modal = null;
     if (focoAnterior && document.contains(focoAnterior)) focoAnterior.focus(); focoAnterior = null;
   }
-  function confirmar(titulo, textoHtml, rotulo, acao) {
+  function confirmar(titulo, textoHtml, rotulo, acao, classe = 'danger-solid') {
     abrirModal(`<div class="modal estreito" role="alertdialog" aria-modal="true" aria-labelledby="cfT"><div class="modal-h"><h2 id="cfT">${esc(titulo)}</h2></div>
       <div class="modal-b"><p style="margin:0">${textoHtml}</p></div>
-      <div class="modal-f"><button class="btn" type="button" data-acao="fechar">Cancelar</button><button class="btn danger-solid" type="button" id="cfOk">${esc(rotulo)}</button></div></div>`);
+      <div class="modal-f"><button class="btn" type="button" data-acao="fechar">Cancelar</button><button class="btn ${classe}" type="button" id="cfOk">${esc(rotulo)}</button></div></div>`);
     $('#cfOk').onclick = async () => {
       const b = $('#cfOk'); b.disabled = true;
       try { await acao(); fecharModal(); } catch (e) { toast(msgErro(e), true); b.disabled = false; }
     };
+  }
+
+  // Copia as ações do mês anterior para o mês aberto (vazio): mesmo local, mesmos médicos, mesmo dia do mês.
+  async function copiarMesAnterior(btn) {
+    const ant = addMes(S.mes, -1), alvo = S.mes;
+    if (acoesDoMes(alvo).length) return toast('Este mês já tem escalas. A cópia só é feita em um mês vazio.');
+    btn.disabled = true;
+    try { await carregarMes(ant); } catch (e) { btn.disabled = false; return toast(msgErro(e), true); }
+    btn.disabled = false;
+    const lista = acoesDoMes(ant).slice().sort((a, b) => a.data.localeCompare(b.data));
+    if (!lista.length) return toast(`Não há escalas em ${R.nomeMes(ant)} para copiar.`);
+    const ultimo = +fimMes(alvo).slice(8);
+    const novaData = d => `${alvo}-${pad(Math.min(+d.slice(8), ultimo))}`;
+    const ex = lista[0];
+    confirmar('Copiar escalas do mês anterior',
+      `Copiar ${plural(lista.length, 'ação', 'ações')} de <b>${esc(R.nomeMes(ant))}</b> para <b>${esc(R.nomeMes(alvo))}</b>? Cada uma vem com o mesmo local e os mesmos médicos, no mesmo dia do mês (por exemplo, ${esc(R.dataCurta(ex.data))} vira ${esc(R.dataCurta(novaData(ex.data)))}). Depois é só ajustar as datas e os médicos de cada ação.`,
+      'Copiar escalas', async () => {
+        let feitas = 0;
+        try {
+          for (const a of lista) {
+            const { error } = await sb.rpc('salvar_acao', { p_id: null, p_local: a.local, p_data: novaData(a.data),
+              p_alocacoes: a.alocacoes.map(x => ({ cnes: x.cnes, medico_id: x.medico_id, cbo: x.cbo || '', funcao: (x.funcao || '').trim() })) });
+            if (error) throw error;
+            feitas++;
+          }
+        } finally {
+          await carregarMes(alvo, true).catch(() => {}); render();
+        }
+        toast(`${plural(feitas, 'ação copiada', 'ações copiadas')}. Revise as datas.`);
+      }, 'primary');
   }
 
   /* --- Editor de ação --- */
@@ -404,7 +453,7 @@
   }
   function gradeEditor() {
     const d = S.modal.draft, g = $('#edGrid'); if (!g) return;
-    const fake = { alocacoes: d.alocacoes };
+    const fake = { alocacoes: d.alocacoes, data: $('#edData')?.value || d.data, id: S.modal.id };
     g.innerHTML = S.carretas.map(c => {
       const itens = d.alocacoes.map((al, i) => ({ al, i })).filter(x => x.al.cnes === c.cnes);
       return `<section class="ed-car"><h3><span class="dot" style="background:${cor(c.cnes)}"></span>${esc(curto(c))} <span class="muted" style="font-weight:500">CNES ${esc(c.cnes)}${c.placa ? ' · ' + esc(c.placa) : ''}</span></h3>
@@ -603,6 +652,7 @@
         }); break; }
       case 'salvar-acao': salvarAcao(el); break;
       case 'rm-al': S.modal.draft.alocacoes.splice(+el.dataset.i, 1); gradeEditor(); break;
+      case 'copiar-mes': copiarMesAnterior(el); break;
       case 'ultimo-mes': { const m = await ultimoMesComEscala(); if (m) irPara('escalas', m); else toast('Ainda não há escalas cadastradas.'); break; }
       case 'baixar': baixar(el, el.dataset.tipo); break;
       case 'copiar': copiar(el.dataset.whats === '1'); break;
@@ -673,6 +723,11 @@
     if (t.id === 'filtroMed') { S.filtroMed = t.value; render(); }
     else if (t.matches('[data-rep]')) { S.rep[t.dataset.rep] = t.checked; gravar('escala.rep', JSON.stringify(S.rep)); render(); }
     else if (t.matches('[data-cbo]')) { S.modal.draft.alocacoes[+t.dataset.cbo].cbo = t.value; gradeEditor(); }
+    else if (t.id === 'edData' && S.modal?.tipo === 'acao') {
+      // Outro mês: carrega as escalas dele para avisar se algum médico já está em outra ação no mesmo dia.
+      if (/^\d{4}-\d{2}-\d{2}$/.test(t.value)) { try { await carregarMes(t.value.slice(0, 7)); } catch (_) {} }
+      gradeEditor();
+    }
     else if (t.matches('[data-perfil-de]')) {
       const id = t.dataset.perfilDe; t.disabled = true;
       try { await chamarGestao({ action: 'role', userId: id, perfil: t.value }); toast('Perfil alterado.'); }
@@ -693,7 +748,7 @@
   });
   document.addEventListener('toggle', e => {
     const d = e.target; if (!(d instanceof HTMLDetailsElement)) return;
-    if (d.dataset.det === 'pend') S.relPend = d.open; else if (d.dataset.det === 'opc') S.relOpc = d.open;
+    if (d.dataset.det === 'pend') S.relPend = d.open; else if (d.dataset.det === 'opc') S.relOpc = d.open; else if (d.dataset.det === 'res') S.relRes = d.open;
   }, true);
   window.addEventListener('hashchange', () => { if (S.eu) rotear(); });
   window.addEventListener('beforeunload', e => { if (editorSujo()) { e.preventDefault(); e.returnValue = ''; } });

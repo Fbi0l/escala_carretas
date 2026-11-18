@@ -274,3 +274,9 @@ tbody tr:last-child td{border-bottom:0}
 @media print{.topo,.abas,.rodape,.rel-barra,.rel-bloco,.fab{display:none!important}.papel{border:0;box-shadow:none;padding:0}main{padding:0}}
 /* iPhone amplia a tela ao tocar num campo com letra menor que 16 px: no celular, os campos usam 16 px. */
 @media (max-width:760px),(pointer:coarse){input,select,textarea,.input,.auth-card input,.ed-item .ctrls .input{font-size:16px}}
+/* Resumo por médico (relatório) */
+.res-wrap{overflow-x:auto}
+.res-tab{width:100%;border-collapse:collapse;font-size:13.5px}
+.res-tab th{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.res-tab th,.res-tab td{padding:9px 16px;text-align:left;border-top:1px solid var(--line);vertical-align:top}
+.res-tab .n{text-align:right;width:70px}
