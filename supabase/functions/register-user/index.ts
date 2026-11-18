@@ -24,6 +24,9 @@ Deno.serve(async (req: Request) => {
     const { data: perfil, error: errReserva } = await admin.rpc("reservar_convite_cadastro", { p_hash: hash, p_reserva: reserva });
     if (errReserva) throw errReserva;
     if (!perfil) { reserva = ""; return resposta(req, { error: "Convite expirado, já usado ou indisponível. Peça outro ao administrador." }, 409); }
+    // O banco só aceita a conta nova se o convite reservado estiver ligado a este e-mail (cadastro público desligado).
+    const { error: errEmail } = await admin.from("convites_cadastro").update({ email_reserva: email }).eq("token_hash", hash).eq("reserva_id", reserva);
+    if (errEmail) throw errEmail;
     const { data: novo, error: errCriar } = await admin.auth.admin.createUser({
       email, password: senha, email_confirm: true, user_metadata: { full_name: nome },
     });
