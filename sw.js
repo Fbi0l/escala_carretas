@@ -3,7 +3,7 @@
    - NUNCA guarda nada do Supabase (login, médicos, escalas): esses pedidos vão direto para a rede.
    - Rede primeiro: com internet, sempre usa a versão publicada mais nova; a cópia só é usada sem conexão. */
 'use strict';
-const CACHE = 'escala-app-v15';
+const CACHE = 'escala-app-v16';
 
 self.addEventListener('install', ev => {
   ev.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', './manifest.webmanifest?v=2', './assets/icone-192.png?v=2'])).then(() => self.skipWaiting()));
