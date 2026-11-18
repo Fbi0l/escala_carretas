@@ -103,7 +103,7 @@
   }
 
   /* ---------- roteamento ---------- */
-  const VISTAS = ['escalas', 'relatorio', 'medicos', 'carretas', 'usuarios'];
+  const VISTAS = ['escalas', 'relatorio', 'medicos', 'carretas', 'usuarios', 'sobre'];
   function lerHash() {
     const h = decodeURIComponent((location.hash || '').slice(1));
     const [v, mes] = h.split('/');
@@ -129,7 +129,7 @@
   /* ---------- render ---------- */
   function render() {
     const faixa = $('#faixa'), main = $('#conteudo');
-    ({ escalas: vEscalas, relatorio: vRelatorio, medicos: vMedicos, carretas: vCarretas, usuarios: vUsuarios })[S.vista](faixa, main);
+    ({ escalas: vEscalas, relatorio: vRelatorio, medicos: vMedicos, carretas: vCarretas, usuarios: vUsuarios, sobre: vSobre })[S.vista](faixa, main);
   }
   function faixaMes(atual) {
     const lista = acoesDoMes(S.mes);
@@ -316,6 +316,51 @@
   }
 
   /* --- Usuários (administrador) --- */
+  /* --- Sobre o Carreta+ (justificativa do sistema) --- */
+  function vSobre(faixa, main) {
+    faixa.innerHTML = `${voltar()}<h1 class="titulo-pag">Sobre o Carreta+</h1>`;
+    main.innerHTML = `<article class="card sobre">
+      <p class="sobre-lead">O <b>Carreta+</b> organiza a escala dos médicos nas carretas de saúde (Mulher I, Mulher II, Mulher III e Tomografia) e gera automaticamente o relatório mensal enviado ao operacional. Foi desenvolvido internamente, sob medida para a rotina da equipe, e publicado em novembro de 2026.</p>
+
+      <h2>Por que o app foi criado</h2>
+      <p>As carretas atendem em ações itinerantes, em locais e datas diferentes ao longo do mês. Cada carreta tem o seu próprio CNES, e cada ação reúne médicos de várias especialidades distribuídos entre as carretas. Antes do Carreta+, essa divisão era montada e conferida à mão:</p>
+      <ul>
+        <li>os dados dos médicos (nome, CNS, CBO e as carretas em cujo CNES estão cadastrados) ficavam espalhados em fichas e documentos;</li>
+        <li>a escala de cada ação era digitada de novo, ação por ação;</li>
+        <li>o relatório mensal para o operacional, base do BPA, era redigido e formatado manualmente;</li>
+        <li>um médico escalado numa carreta em cujo CNES não está cadastrado, ou com o CBO errado, só era percebido depois.</li>
+      </ul>
+      <p>O resultado era retrabalho, risco de erro e dificuldade para consultar as escalas dos meses anteriores.</p>
+
+      <h2>Para que serve</h2>
+      <p>Reunir em um só lugar o cadastro dos médicos, a escala de cada ação e o relatório mensal, reduzindo o trabalho manual e os erros que chegam ao operacional.</p>
+      <ol>
+        <li>Manter um cadastro único dos médicos, com CNS, CBO e as carretas em cujo CNES cada um está cadastrado.</li>
+        <li>Permitir que a enfermagem monte a escala de cada ação em poucos minutos.</li>
+        <li>Conferir cada escala e avisar sobre pendências antes do envio do relatório.</li>
+        <li>Gerar o relatório pronto, em PDF e Word, no padrão ABNT e com o papel timbrado da ASBRAS.</li>
+        <li>Guardar o histórico de todas as escalas para consulta.</li>
+        <li>Proteger os dados pessoais dos médicos, com acesso só para quem foi convidado.</li>
+      </ol>
+
+      <h2>Utilidade no dia a dia</h2>
+      <dl class="sobre-dl">
+        <dt>Enfermagem</dt><dd>Monta a escala sem redigitar dados e recebe avisos na hora sobre CNES, CBO e médico repetido no mesmo dia.</dd>
+        <dt>Administração</dt><dd>Mantém um cadastro único e atualizado, controla quem tem acesso e acompanha quantas ações cada médico fez no mês.</dd>
+        <dt>Operacional</dt><dd>Recebe o relatório sempre no mesmo formato e com menos erros para corrigir antes do BPA.</dd>
+        <dt>Gestão</dt><dd>Tem o histórico das escalas, mês a mês, para consulta, conferência e prestação de contas.</dd>
+      </dl>
+
+      <h2>Importância</h2>
+      <p><b>Produção e faturamento.</b> O relatório de escala é a base para registrar a produção no BPA. Para a produção ser aceita, cada médico precisa estar cadastrado no CNES da carreta em que atendeu, com o CBO correto. Ao conferir isso antes do envio, o Carreta+ ajuda a evitar produção recusada e retrabalho.</p>
+      <p><b>Padronização.</b> O relatório sai sempre igual, no padrão ABNT e com a identidade da ASBRAS.</p>
+      <p><b>Proteção de dados (LGPD).</b> Só entra quem foi convidado, cada perfil vê e altera apenas o que precisa, quem não está conectado não lê nenhum dado, senhas fracas ou vazadas são recusadas e as ações importantes ficam registradas numa auditoria.</p>
+
+      <h2>Conclusão</h2>
+      <p>O Carreta+ transforma uma rotina manual, demorada e sujeita a erros em um processo simples, conferido e padronizado: economiza tempo da enfermagem, entrega ao operacional um relatório confiável e protege os dados dos médicos, sem custo de licença para a instituição.</p>
+    </article>`;
+  }
+
   async function chamarGestao(body) {
     const { data, error } = await sb.functions.invoke('manage-users', { body });
     if (error) {
@@ -621,6 +666,7 @@
         <span class="small muted">${esc(S.eu.email)} · ${admin() ? 'Administrador' : 'Enfermagem'}</span>
         <a class="btn" href="#carretas" data-fecha>${ic('truck')}Carretas</a>
         ${admin() ? `<a class="btn" href="#usuarios" data-fecha>${ic('users')}Usuários</a>` : ''}
+        <a class="btn" href="#sobre" data-fecha>${ic('info')}Sobre o Carreta+</a>
         <button class="btn" type="button" data-acao="minha-senha">${ic('key')}Trocar minha senha</button>
         ${pedidoInstalar ? `<button class="btn" type="button" data-acao="instalar">${ic('install')}Instalar o app</button>` : ''}
         <button class="btn danger" type="button" data-acao="sair">${ic('out')}Sair</button>
@@ -631,6 +677,7 @@
   function fecharMenus() { $('#contaMenu').classList.add('hidden'); $('#contaBtn').setAttribute('aria-expanded', 'false'); }
   document.addEventListener('click', async e => {
     if (e.target.closest('[data-fecha]')) { fecharModal(); return; }
+    if (e.target.closest('#contaMenu a')) { fecharMenus(); return; }
     if (e.target.matches('[data-overlay]')) { if (S.modal?.tipo === 'acao') fecharEditor(); else fecharModal(); return; }
     const pick = e.target.closest('[data-pick]');
     if (pick) { const inp = pick.closest('.combo').querySelector('[data-combo]'); comboFechar(); adicionarAlocacao(inp.dataset.combo, pick.dataset.pick); return; }
