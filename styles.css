@@ -180,6 +180,7 @@ tbody tr:last-child td{border-bottom:0}
   .tabela.cartoes thead{display:none}
   .tabela.cartoes tr{padding:12px 14px;border-bottom:1px solid var(--line)}
   .tabela.cartoes td{border:0;padding:3px 0}
+  .tabela.cartoes .chip{white-space:normal;max-width:100%}
   .tabela.cartoes td[data-rot]::before{content:attr(data-rot) ": ";color:var(--muted);font-size:12px}
 }
 
