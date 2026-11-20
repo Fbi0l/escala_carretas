@@ -114,7 +114,9 @@ main:focus{outline:none}
 /* Abas embaixo (celular) */
 .abas{display:none}
 @media (max-width:760px){
-  .atalhos,.conta-txt{display:none}
+  .atalhos{display:none}
+  /* No celular o nome e o perfil somem da tela, mas continuam como nome do botão para leitores de tela (WCAG 2.5.3). */
+  .conta-txt{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
   .topo-linha{min-height:54px}
   .marca span:last-child{font-size:15px}
   .conta{margin-left:auto}

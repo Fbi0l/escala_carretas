@@ -865,8 +865,6 @@
     $('#avatar').textContent = iniciais(S.eu.nome || S.eu.email);
     $('#contaNome').textContent = S.eu.nome || S.eu.email;
     $('#contaPerfil').textContent = admin() ? 'Administrador' : 'Enfermagem';
-    // No celular o nome some e fica só o avatar: o botão precisa de um nome para leitores de tela.
-    $('#contaBtn').setAttribute('aria-label', `Conta de ${S.eu.nome || S.eu.email} (${admin() ? 'Administrador' : 'Enfermagem'})`);
     document.querySelectorAll('.so-admin').forEach(x => x.classList.toggle('hidden', !admin()));
     $('#versao').textContent = 'versão ' + C.versao;
     $('#ano').textContent = String(Math.max(2026, new Date().getFullYear()));
