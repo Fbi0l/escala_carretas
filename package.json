@@ -1,0 +1,14 @@
+{
+  "name": "carreta-mais",
+  "version": "1.2.1",
+  "private": true,
+  "description": "Testes do Carreta+ (site estático). Não usa credenciais nem dados reais.",
+  "scripts": {
+    "test:navegador": "node tests/navegador/teste.mjs",
+    "test": "node --check app.js && node --check relatorio.js && node --check config.js && npm run test:navegador"
+  },
+  "devDependencies": {
+    "axe-core": "4.10.3",
+    "playwright": "1.56.1"
+  }
+}

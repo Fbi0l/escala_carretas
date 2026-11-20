@@ -67,6 +67,19 @@ supabase/functions/                                      register-user (cadastro
 tests/rls.sql                                            teste das regras de acesso (roda e desfaz tudo)
 ```
 
+## Testes
+
+- **No navegador (automático):** a cada envio ao GitHub, o workflow **Teste no navegador** abre o site num Chrome
+  de teste com um Supabase **falso** (`tests/navegador/supabase-falso.js`, sem internet e sem dados reais) e confere
+  a entrada, o aviso de privacidade, a senha errada, o termo de uso, todas as telas (administrador e enfermagem),
+  no computador e no celular, sem erro de JavaScript e sem rolagem lateral. Também roda o **axe** e falha se houver
+  problema de acessibilidade sério ou crítico (WCAG 2.2 AA). Os prints das telas ficam nos artefatos do workflow.
+- No computador: `npm install`, `npx playwright install chromium` e `npm test`
+  (ou `CHROME_PATH=/caminho/do/chrome npm test` para usar um Chrome já instalado).
+- **Regras de acesso do banco:** `tests/rls.sql` (ver abaixo).
+- Mudou uma tela? Acrescente a verificação em `tests/navegador/teste.mjs` e, se a tela usar uma tabela nova,
+  os dados fictícios em `supabase-falso.js`.
+
 ## Publicação
 
 O site é publicado pelo **GitHub Pages** a partir da branch `main` (pasta raiz).

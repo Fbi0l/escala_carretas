@@ -5,3 +5,4 @@ node_modules/
 dados/
 *.seed.sql
 *.pdf
+test-results/
