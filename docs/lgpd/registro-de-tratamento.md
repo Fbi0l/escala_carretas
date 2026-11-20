@@ -29,6 +29,13 @@ Sistema **Carreta+** (escala médica das carretas) — atualizado em 20/11/2026.
 
 O sistema **não usa** cookies de rastreamento, analytics, pixels, CDN externa nem inteligência artificial.
 
+## Segurança (art. 46)
+
+- RLS em todas as tabelas; visitantes sem login não leem nada; conta bloqueada perde o acesso na hora.
+- Testes no navegador com acessibilidade a cada envio; regras de acesso em `tests/rls.sql`.
+- Auditoria semanal da configuração do Supabase com o usuário `auditoria_leitura`, que **não lê nenhum dado** (`AUDITORIA_SUPABASE.md`; começa desligada).
+- Dependabot avisa de atualizações e falhas conhecidas nas bibliotecas de teste e nas ações do GitHub.
+
 ## Direitos dos titulares (art. 18)
 
 - **Funcionários:** veem e trocam os próprios dados de acesso; o administrador corrige, bloqueia ou exclui a conta.
