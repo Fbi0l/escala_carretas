@@ -12,6 +12,7 @@ Sistema **interno da ASBRAS** para montar a escala dos médicos nas 4 carretas d
 - Aviso de privacidade: texto único em `#avisoPrivacidade` no `index.html`. Termo de uso da equipe: `#telaTermo` no `index.html` e `TERMO_VERSAO` no `app.js` (aceite em `perfis_usuarios.termo_versao`, função `aceitar_termo`). **Mudou o texto do termo? Suba `TERMO_VERSAO`**: todos aceitam de novo.
 - Backup: `BACKUP.md`, `scripts/backup.sh`, workflow `backup.yml` (desligado até o dono cadastrar as variáveis e `BACKUP_ENABLED=true`).
 - Auditoria semanal do Supabase: `AUDITORIA_SUPABASE.md`, `scripts/auditoria-supabase*.{sh,sql}`, workflow `auditoria-supabase.yml` (desligado até definir a senha do `auditoria_leitura` e cadastrar `SUPABASE_AUDIT_DB_PASSWORD` + `AUDITORIA_ENABLED=true`). **Mudou tabela, política, função ou permissão? Atualize `docs/auditoria-supabase-esperado.txt` no mesmo envio** (gerar pelo conector do Supabase com a consulta de `scripts/auditoria-supabase-foto.sql` e conferir por hash).
+- Apresentação para a empresa (20/11/2026): documento "Carreta+ — Como o sistema foi desenvolvido" (Claude Docs, https://claude.ai/artifact/CKCiHhJ5QrSy1cn52BvDvk) e slides "Carreta+ — Apresentação do sistema" (https://claude.ai/artifact/Wgk32TBjvR1Nyg5VXRNFLq). Quando o dono pedir a apresentação, usar e atualizar esses dois, sem criar novos.
 - Dependabot: `.github/dependabot.yml` (bibliotecas de teste e ações do GitHub, toda segunda).
 
 ## Regras que não podem ser quebradas
