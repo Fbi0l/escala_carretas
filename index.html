@@ -16,11 +16,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Carreta+">
   <link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=1.1.0">
-  <script src="config.js?v=1.1.0" defer></script>
+  <link rel="stylesheet" href="styles.css?v=1.2.0">
+  <script src="config.js?v=1.2.0" defer></script>
   <script src="vendor/supabase-2.119.0.js" defer></script>
-  <script src="relatorio.js?v=1.1.0" defer></script>
-  <script src="app.js?v=1.1.0" defer></script>
+  <script src="relatorio.js?v=1.2.0" defer></script>
+  <script src="app.js?v=1.2.0" defer></script>
 </head>
 <body>
 <a class="skip" href="#conteudo">Pular para o conteúdo</a>
@@ -34,6 +34,7 @@
     <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></symbol>
     <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
     <symbol id="i-steth" viewBox="0 0 24 24"><path d="M5 3v6a5 5 0 0 0 10 0V3"/><path d="M10 14v2a5 5 0 0 0 10 0v-3"/><circle cx="20" cy="11" r="2"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
     <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m10.85 12.15 8.65-8.65M18 5l3 3M15 8l3 3"/></symbol>
     <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
     <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
@@ -61,6 +62,20 @@
     <p id="loginMsg" class="form-msg" role="alert"></p>
     <button class="btn primary full" type="submit">Entrar</button>
     <p class="small muted">Esqueceu a senha? Peça ao administrador para redefinir.</p>
+    <details class="aviso-priv">
+      <summary>Aviso de privacidade</summary>
+      <div id="avisoPrivacidade" class="aviso-texto">
+        <p><strong>Quem é responsável:</strong> a ASBRAS, empresa que opera as carretas de saúde. O Carreta+ é um sistema de uso interno, só para a equipe da ASBRAS.</p>
+        <p><strong>Que dados guarda:</strong> da equipe, nome, e-mail, perfil e o registro de acessos e alterações; dos médicos, nome, Cartão Nacional de Saúde (CNS), função, CBO, vínculos com o CNES de cada carreta e as escalas. O sistema não guarda dados de pacientes.</p>
+        <p><strong>Para quê:</strong> montar as escalas das carretas, conferir CNES e CBO e gerar o relatório mensal enviado ao setor operacional para o BPA. O registro de alterações (auditoria) serve para segurança e para corrigir erros.</p>
+        <p><strong>Base legal (LGPD):</strong> contrato de trabalho, para os dados da equipe; contrato com o médico e a obrigação de informar a produção ao SUS, para os dados dos médicos; legítimo interesse e segurança, para a auditoria.</p>
+        <p><strong>Quem acessa:</strong> só a equipe autorizada da ASBRAS, conforme o perfil (administrador ou enfermagem). Nada é vendido nem compartilhado fora da empresa; o relatório vai só ao setor operacional.</p>
+        <p><strong>Onde ficam:</strong> num banco de dados protegido no Brasil (Supabase, em São Paulo). O site fica no GitHub e não guarda dados. Não usamos cookies de rastreamento, anúncios nem inteligência artificial.</p>
+        <p><strong>Por quanto tempo:</strong> as contas, até o desligamento da pessoa; os cadastros, as escalas e a auditoria, por 5 anos, para comprovar o BPA. Depois disso, são excluídos.</p>
+        <p><strong>Seus direitos:</strong> saber quais dados seus estão no sistema, pedir correção e, quando a lei permitir, a exclusão. Fale com o administrador do sistema; a resposta vem em até 15 dias.</p>
+        <p class="muted">Atualizado em 20/11/2026.</p>
+      </div>
+    </details>
   </form>
 </section>
 
@@ -78,6 +93,27 @@
     <p id="cadMsg" class="form-msg" role="alert"></p>
     <button class="btn primary full" type="submit">Criar conta</button>
     <p class="small"><a href="./">Já tenho conta</a></p>
+  </form>
+</section>
+
+<!-- Termo de uso da equipe (aceite no primeiro acesso e a cada nova versão) -->
+<section id="telaTermo" class="auth hidden" aria-labelledby="termoTitulo">
+  <form id="formTermo" class="auth-card largo" novalidate>
+    <span class="auth-logo" aria-hidden="true"><svg class="logo-m"><use href="#i-logo"/></svg></span>
+    <h1 id="termoTitulo">Termo de uso</h1>
+    <p class="muted">O Carreta+ guarda dados pessoais dos médicos, como nome e Cartão Nacional de Saúde (CNS). Para usar o sistema, você se compromete a:</p>
+    <ul class="termo-lista">
+      <li>usar os dados dos médicos só para montar as escalas e gerar o relatório do BPA;</li>
+      <li>não copiar, fotografar nem repassar esses dados para fora da ASBRAS, e enviar o relatório só ao setor operacional, por canais internos da empresa;</li>
+      <li>manter sua senha em sigilo, não emprestar sua conta e sair do sistema em aparelhos de uso compartilhado;</li>
+      <li>avisar o administrador na hora se perder o celular, desconfiar de um acesso indevido ou enviar dados ao destino errado.</li>
+    </ul>
+    <p class="muted">As alterações que você fizer ficam registradas com o seu nome. Veja também o <a href="#" data-ver-aviso>aviso de privacidade</a>.</p>
+    <label class="check"><input id="termoAceite" type="checkbox"> Li e aceito o termo de uso</label>
+    <p id="termoMsg" class="form-msg" role="alert"></p>
+    <button class="btn primary full" type="submit">Aceitar e entrar</button>
+    <button class="btn full" type="button" data-termo-sair>Sair</button>
+    <p class="small muted">Versão do termo: <span id="termoVersao"></span></p>
   </form>
 </section>
 
@@ -101,6 +137,7 @@
         </button>
         <div class="menu hidden" id="contaMenu" role="menu">
           <a href="#sobre" role="menuitem"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg>Sobre o Carreta+</a>
+          <a href="#privacidade" role="menuitem"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>Privacidade</a>
           <button type="button" role="menuitem" data-acao="minha-senha"><svg class="i" aria-hidden="true"><use href="#i-key"/></svg>Trocar minha senha</button>
           <button type="button" role="menuitem" data-acao="instalar" class="instalar-item hidden"><svg class="i" aria-hidden="true"><use href="#i-install"/></svg>Instalar o app</button>
           <button type="button" role="menuitem" data-acao="sair"><svg class="i" aria-hidden="true"><use href="#i-out"/></svg>Sair</button>
@@ -118,7 +155,7 @@
     <a href="#medicos" data-nav="medicos"><svg class="i" aria-hidden="true"><use href="#i-steth"/></svg>Médicos</a>
     <button type="button" id="maisBtn" aria-haspopup="dialog"><svg class="i" aria-hidden="true"><use href="#i-more"/></svg>Mais</button>
   </nav>
-  <footer class="rodape wrap"><span>© <span id="ano">2026</span> Carreta+</span><span class="sep" aria-hidden="true">·</span><span>Todos os direitos reservados</span><span class="sep" aria-hidden="true">·</span><a href="#sobre">Sobre o app</a><span class="sep" aria-hidden="true">·</span><span id="versao"></span></footer>
+  <footer class="rodape wrap"><span>© <span id="ano">2026</span> Carreta+</span><span class="sep" aria-hidden="true">·</span><span>Todos os direitos reservados</span><span class="sep" aria-hidden="true">·</span><a href="#sobre">Sobre o app</a><span class="sep" aria-hidden="true">·</span><a href="#privacidade">Privacidade</a><span class="sep" aria-hidden="true">·</span><span id="versao"></span></footer>
 </div>
 
 <div id="carregando" class="carregando" role="status"><span class="spinner"></span> Carregando…</div>

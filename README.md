@@ -31,22 +31,30 @@ Sistema para montar a escala dos médicos em cada carreta (por CNES) e gerar o r
 - Política de segurança (CSP): o site só carrega arquivos dele mesmo e só conversa com o Supabase do projeto.
   As bibliotecas ficam em `vendor/` (Supabase JS 2.119.0, docx 9.15.4 e jsPDF 4.2.1), sem CDN.
 - Toda alteração em ações, médicos e carretas fica registrada na **auditoria** (visível ao administrador).
+- Backup diário criptografado (age) no GitHub Actions, guardado por 30 dias: ver `BACKUP.md`.
 
 ## Uso interno e LGPD
 
-- **Sistema interno** desenvolvido para a empresa que opera as carretas. Só a equipe da empresa usa
+- **Sistema interno da ASBRAS**, empresa que opera as carretas. Só a equipe da empresa usa
   (administrador e enfermagem), e o acesso é por convite. Não é vendido nem aberto ao público.
-- A **empresa é a controladora** dos dados. Os dados pessoais são os da equipe (contas) e os dos médicos
+- A **ASBRAS é a controladora** dos dados. Os dados pessoais são os da equipe (contas) e os dos médicos
   (nome, CNS, CBO, vínculos e escalas), usados para montar a escala e enviar o BPA. **Não há dados de pacientes.**
 - Base legal: contrato de trabalho (equipe); contrato com o médico e obrigação regulatória do SUS (médicos);
   legítimo interesse e segurança (convites e auditoria).
+- **Aviso de privacidade** na tela de entrada ("Aviso de privacidade") e dentro do sistema (menu da conta,
+  "Mais" e rodapé → Privacidade). O texto fica só no `index.html` (`#avisoPrivacidade`).
+- **Termo de uso da equipe:** cada usuário aceita no primeiro acesso e de novo a cada versão
+  (`TERMO_VERSAO` no `app.js`; texto em `#telaTermo` no `index.html`). A versão e a data do aceite ficam
+  em `perfis_usuarios` (migração 007, função `aceitar_termo`). Mudou o texto? Suba a data em `TERMO_VERSAO`.
+- Prazo de guarda: contas até o desligamento; cadastros, escalas e auditoria por 5 anos (comprovação do BPA).
 - Os dados ficam no Supabase em **São Paulo**. O site (GitHub Pages) não guarda dados. Sem cookies de
   rastreamento, analytics, CDN externa ou inteligência artificial.
+- **Backup** diário criptografado no GitHub Actions: ver `BACKUP.md` (começa desligado até cadastrar as variáveis).
 - Documentos em `docs/lgpd/`:
   - `registro-de-tratamento.md`: o que é guardado, para quê, base legal, quem acessa e por quanto tempo;
   - `plano-de-incidentes.md`: o que fazer se houver vazamento ou acesso indevido.
-- Pendências: definir com a empresa o prazo de guarda das escalas e da auditoria e o encarregado (DPO)
-  ou canal de contato; criar o backup do banco; aviso de privacidade e aceite do termo de uso pela equipe.
+- Pendências: indicar o encarregado (DPO) da ASBRAS ou um canal de contato sobre dados (hoje é o
+  administrador do sistema); ligar o backup.
 
 ## Estrutura
 

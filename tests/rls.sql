@@ -3,6 +3,10 @@
 begin;
 create temp table _r(teste text, ok boolean, detalhe text);
 grant all on _r to authenticated, anon;
+-- Desde a 006, conta nova só entra com convite reservado para o mesmo e-mail: reserva um para cada usuário de teste.
+insert into public.convites_cadastro(token_hash, perfil, expira_em, reservado_em, reserva_id, email_reserva)
+select md5(e) || md5(e || 'x'), 'enfermagem', now() + interval '1 hour', now(), gen_random_uuid(), e
+from unnest(array['teste-admin@exemplo.invalid','teste-enf@exemplo.invalid','teste-bloq@exemplo.invalid','teste-sem@exemplo.invalid']) e;
 insert into auth.users(id, instance_id, aud, role, email, created_at, updated_at) values
  ('00000000-0000-4000-8000-0000000000a1','00000000-0000-0000-0000-000000000000','authenticated','authenticated','teste-admin@exemplo.invalid',now(),now()),
  ('00000000-0000-4000-8000-0000000000e1','00000000-0000-0000-0000-000000000000','authenticated','authenticated','teste-enf@exemplo.invalid',now(),now()),
@@ -75,6 +79,32 @@ do $$ declare n int; m uuid; begin
   select count(*) into n from public.auditoria where autor_id = '00000000-0000-4000-8000-0000000000a1'; insert into _r values ('auditoria registra ações do admin', n >= 2, n::text);
   begin delete from public.medicos where id = (select medico_id from public.alocacoes limit 1); insert into _r values ('médico escalado não pode ser excluído', false, 'excluiu');
   exception when foreign_key_violation then insert into _r values ('médico escalado não pode ser excluído', true, 'bloqueado'); end;
+end $$;
+reset role;
+
+-- Termo de uso (007): cada um aceita só o próprio; bloqueado e visitante não aceitam.
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-0000000000e1","role":"authenticated","email":"teste-enf@exemplo.invalid"}';
+do $$ declare ok boolean; v text; begin
+  select public.aceitar_termo('2026-11-20') into ok;
+  select termo_versao into v from public.perfis_usuarios where usuario_id = '00000000-0000-4000-8000-0000000000e1';
+  insert into _r values ('enfermagem aceita o termo', ok and v = '2026-11-20', coalesce(v, 'nulo'));
+  begin update public.perfis_usuarios set termo_versao = '2026-01-01' where usuario_id = '00000000-0000-4000-8000-0000000000a1';
+    insert into _r values ('ninguém altera o aceite de outro', not found, 'linhas alteradas: ' || (case when found then 1 else 0 end));
+  exception when insufficient_privilege then insert into _r values ('ninguém altera o aceite de outro', true, sqlerrm); end;
+  begin perform public.aceitar_termo('qualquer'); insert into _r values ('versão inválida é recusada', false, 'aceitou');
+  exception when others then insert into _r values ('versão inválida é recusada', true, sqlerrm); end;
+end $$;
+set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-0000000000b1","role":"authenticated","email":"teste-bloq@exemplo.invalid"}';
+do $$ begin
+  begin perform public.aceitar_termo('2026-11-20'); insert into _r values ('bloqueado não aceita o termo', false, 'aceitou');
+  exception when others then insert into _r values ('bloqueado não aceita o termo', true, sqlerrm); end;
+end $$;
+reset role;
+set local role anon;
+do $$ begin
+  begin perform public.aceitar_termo('2026-11-20'); insert into _r values ('visitante não aceita o termo', false, 'aceitou');
+  exception when others then insert into _r values ('visitante não aceita o termo', true, sqlerrm); end;
 end $$;
 reset role;
 

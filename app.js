@@ -103,7 +103,8 @@
   }
 
   /* ---------- roteamento ---------- */
-  const VISTAS = ['escalas', 'relatorio', 'medicos', 'carretas', 'usuarios', 'sobre'];
+  const VISTAS = ['escalas', 'relatorio', 'medicos', 'carretas', 'usuarios', 'sobre', 'privacidade'];
+  const TERMO_VERSAO = '2026-11-20'; // termo de uso da equipe (index.html, #telaTermo). Mudou o texto? Suba a data.
   function lerHash() {
     const h = decodeURIComponent((location.hash || '').slice(1));
     const [v, mes] = h.split('/');
@@ -129,7 +130,7 @@
   /* ---------- render ---------- */
   function render() {
     const faixa = $('#faixa'), main = $('#conteudo');
-    ({ escalas: vEscalas, relatorio: vRelatorio, medicos: vMedicos, carretas: vCarretas, usuarios: vUsuarios, sobre: vSobre })[S.vista](faixa, main);
+    ({ escalas: vEscalas, relatorio: vRelatorio, medicos: vMedicos, carretas: vCarretas, usuarios: vUsuarios, sobre: vSobre, privacidade: vPrivacidade })[S.vista](faixa, main);
   }
   function faixaMes(atual) {
     const lista = acoesDoMes(S.mes);
@@ -316,6 +317,14 @@
   }
 
   /* --- Usuários (administrador) --- */
+  /* --- Aviso de privacidade: o mesmo texto da tela de entrada (index.html, #avisoPrivacidade) --- */
+  function vPrivacidade(faixa, main) {
+    faixa.innerHTML = `${voltar()}<h1 class="titulo-pag">Aviso de privacidade</h1>`;
+    const card = document.createElement('article'); card.className = 'card privacidade';
+    card.append($('#avisoPrivacidade').cloneNode(true)); card.firstElementChild.removeAttribute('id');
+    main.replaceChildren(card);
+  }
+
   /* --- Sobre o Carreta+ (justificativa do sistema) --- */
   function vSobre(faixa, main) {
     faixa.innerHTML = `${voltar()}<h1 class="titulo-pag">Sobre o Carreta+</h1>`;
@@ -667,6 +676,7 @@
         <a class="btn" href="#carretas" data-fecha>${ic('truck')}Carretas</a>
         ${admin() ? `<a class="btn" href="#usuarios" data-fecha>${ic('users')}Usuários</a>` : ''}
         <a class="btn" href="#sobre" data-fecha>${ic('info')}Sobre o Carreta+</a>
+        <a class="btn" href="#privacidade" data-fecha>${ic('shield')}Privacidade</a>
         <button class="btn" type="button" data-acao="minha-senha">${ic('key')}Trocar minha senha</button>
         ${pedidoInstalar ? `<button class="btn" type="button" data-acao="instalar">${ic('install')}Instalar o app</button>` : ''}
         <button class="btn danger" type="button" data-acao="sair">${ic('out')}Sair</button>
@@ -805,7 +815,7 @@
   });
 
   /* ---------- entrada, cadastro e sessão ---------- */
-  const telas = ['telaLogin', 'telaCadastro', 'app'];
+  const telas = ['telaLogin', 'telaCadastro', 'telaTermo', 'app'];
   function mostrar(id) { telas.forEach(t => $('#' + t).classList.toggle('hidden', t !== id)); $('#carregando').classList.add('hidden'); }
   let tokenConvite = null;
 
@@ -839,10 +849,16 @@
   });
 
   async function entrar(session) {
-    const { data: p, error } = await sb.from('perfis_usuarios').select('perfil,nome').eq('usuario_id', session.user.id).maybeSingle();
+    const { data: p, error } = await sb.from('perfis_usuarios').select('perfil,nome,termo_versao').eq('usuario_id', session.user.id).maybeSingle();
     if (error || !p) {
       await sb.auth.signOut();
       mostrar('telaLogin'); $('#loginMsg').textContent = error ? msgErro(error) : 'Sua conta não tem acesso a este sistema. Fale com o administrador.';
+      return;
+    }
+    // Termo de uso: primeiro acesso ou versão nova → aceite antes de abrir o sistema.
+    if (p.termo_versao !== TERMO_VERSAO) {
+      $('#termoVersao').textContent = TERMO_VERSAO; $('#termoAceite').checked = false; $('#termoMsg').textContent = '';
+      sessaoTermo = session; mostrar('telaTermo'); $('#termoTitulo').focus?.();
       return;
     }
     S.eu = { id: session.user.id, email: session.user.email, perfil: p.perfil, nome: p.nome || session.user.user_metadata?.full_name || '' };
@@ -867,6 +883,29 @@
     $('#conteudo').innerHTML = ''; $('#faixa').innerHTML = '';
     $('#loginSenha').value = ''; mostrar('telaLogin');
   }
+
+  // Termo de uso da equipe
+  let sessaoTermo = null;
+  $('#formTermo').addEventListener('submit', async e => {
+    e.preventDefault();
+    const b = e.target.querySelector('button[type=submit]'), msg = $('#termoMsg'); msg.textContent = '';
+    if (!$('#termoAceite').checked) { msg.textContent = 'Para usar o sistema, marque que leu e aceita o termo.'; $('#termoAceite').focus(); return; }
+    b.disabled = true; b.textContent = 'Registrando…';
+    const { data, error } = await sb.rpc('aceitar_termo', { p_versao: TERMO_VERSAO });
+    b.disabled = false; b.textContent = 'Aceitar e entrar';
+    if (error || data !== true) { msg.textContent = error ? msgErro(error) : 'Não foi possível registrar o aceite. Tente de novo.'; return; }
+    const s = sessaoTermo; sessaoTermo = null;
+    if (s) await entrar(s);
+  });
+  $('#telaTermo').addEventListener('click', e => {
+    if (e.target.closest('[data-termo-sair]')) { sessaoTermo = null; sb.auth.signOut(); }
+    if (e.target.closest('[data-ver-aviso]')) {
+      e.preventDefault();
+      const d = $('#avisoPrivacidade').cloneNode(true); d.removeAttribute('id');
+      abrirModal('<div class="modal" role="dialog" aria-modal="true" aria-labelledby="avT"><div class="modal-h"><h2 id="avT">Aviso de privacidade</h2></div><div class="modal-b" id="avCorpo"></div><div class="modal-f"><button class="btn primary" type="button" data-acao="fechar">Fechar</button></div></div>');
+      $('#avCorpo').append(d);
+    }
+  });
 
   // Convite: o token fica só na memória e sai da barra de endereço na hora.
   const m = (location.hash || '').match(/^#convite=([A-Za-z0-9_-]{43})$/);
