@@ -3,6 +3,30 @@
 Sistema para montar a escala dos médicos em cada carreta (por CNES) e gerar o relatório mensal
 **"Divisão de médicos por CNES"** que vai para o operacional fazer o BPA.
 
+## Versões
+
+### 1.2.2 — Nome acessível do botão da conta (20/11/2026)
+
+- O verificador de acessibilidade novo (axe 4.14, trazido pelo Dependabot) exige que o nome lido pelo leitor de tela
+  contenha o texto visível (WCAG 2.5.3). O botão da conta voltou a usar o próprio nome e perfil; no celular eles somem
+  da tela, mas continuam para leitores de tela.
+- Dependabot (`.github/dependabot.yml`) e auditoria semanal do Supabase (`AUDITORIA_SUPABASE.md`, migração 008,
+  começa desligada até cadastrar a senha).
+
+### 1.2.1 — Testes no navegador com acessibilidade (20/11/2026)
+
+- Workflow **Teste no navegador** a cada envio (Playwright + axe, Supabase falso, computador e celular): ver **Testes**.
+- Corrigido (achado pelo teste): texto do aviso de privacidade rolável pelo teclado, botão da conta com nome no celular
+  e links do rodapé com área de toque de 24px.
+
+### 1.2.0 — Privacidade, termo de uso e backup (20/11/2026)
+
+- **Aviso de privacidade** da ASBRAS na entrada e em **Privacidade** (menu, Mais e rodapé).
+- **Termo de uso da equipe:** aceite no primeiro acesso e a cada versão (migração 007, função `aceitar_termo`).
+- **Backup diário criptografado** preparado (`BACKUP.md`, começa desligado).
+- `docs/lgpd/`: registro das operações de tratamento e plano de resposta a incidentes.
+- `tests/rls.sql` corrigido: desde a 006 os usuários de teste precisam de convite reservado; casos novos do termo.
+
 ## O que faz
 
 - **Escalas:** para cada ação (local e data), escolhe quais médicos vão em cada uma das 4 carretas.
@@ -32,6 +56,10 @@ Sistema para montar a escala dos médicos em cada carreta (por CNES) e gerar o r
   As bibliotecas ficam em `vendor/` (Supabase JS 2.119.0, docx 9.15.4 e jsPDF 4.2.1), sem CDN.
 - Toda alteração em ações, médicos e carretas fica registrada na **auditoria** (visível ao administrador).
 - Backup diário criptografado (age) no GitHub Actions, guardado por 30 dias: ver `BACKUP.md`.
+- **Auditoria semanal** da configuração de segurança do Supabase (RLS, políticas, permissões, funções), somente leitura,
+  com um usuário que não lê dados: ver `AUDITORIA_SUPABASE.md`. Mudou o banco de propósito? Atualize
+  `docs/auditoria-supabase-esperado.txt` no mesmo envio.
+- **Dependabot** (`.github/dependabot.yml`): toda segunda confere atualizações das bibliotecas de teste e das ações do GitHub.
 
 ## Uso interno e LGPD
 

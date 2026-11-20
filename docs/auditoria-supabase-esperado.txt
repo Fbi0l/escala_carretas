@@ -1,0 +1,67 @@
+# Foto APROVADA da configuracao de seguranca do Supabase (scripts/auditoria-supabase.sh).
+# Gerada em 20/11/2026 a partir do projeto oficial (escala-carretas), com a migracao auditoria_leitura.
+# Se uma mudanca de seguranca for INTENCIONAL (tabela, politica, funcao, permissao nova), atualize este arquivo
+# no mesmo envio: bash scripts/auditoria-supabase.sh --gerar > docs/auditoria-supabase-esperado.txt
+# (e recoloque este cabecalho), ou peca ao Claude para gerar pelo conector do Supabase. Linhas com # sao ignoradas.
+chave-auth | acoes.atualizado_por | on_delete=set_null
+chave-auth | acoes.criado_por | on_delete=set_null
+chave-auth | carretas.atualizado_por | on_delete=set_null
+chave-auth | convites_cadastro.criado_por | on_delete=set_null
+chave-auth | convites_cadastro.usado_por | on_delete=set_null
+chave-auth | medicos.atualizado_por | on_delete=set_null
+chave-auth | perfis_usuarios.usuario_id | on_delete=cascade
+funcao | aceitar_termo(p_versao text) | definer=true config=search_path="" executa=authenticated,service_role
+funcao | auditar() | definer=true config=search_path="" executa=service_role
+funcao | carimbar() | definer=false config=search_path="" executa=PUBLIC,anon,authenticated,service_role
+funcao | finalizar_convite_cadastro(p_hash text, p_reserva uuid, p_user uuid) | definer=true config=search_path="" executa=service_role
+funcao | liberar_convite_cadastro(p_hash text, p_reserva uuid) | definer=true config=search_path="" executa=service_role
+funcao | privado.eh_admin() | definer=true config=search_path="" executa=authenticated,service_role
+funcao | privado.eh_membro() | definer=true config=search_path="" executa=authenticated,service_role
+funcao | privado.exigir_cadastro_por_convite() | definer=true config=search_path="" executa=-
+funcao | privado.meu_perfil() | definer=true config=search_path="" executa=authenticated,service_role
+funcao | reservar_convite_cadastro(p_hash text, p_reserva uuid) | definer=true config=search_path="" executa=service_role
+funcao | salvar_acao(p_id uuid, p_local text, p_data date, p_alocacoes jsonb) | definer=false config=search_path="" executa=authenticated,service_role
+funcao | salvar_medico(p_id uuid, p_nome text, p_cns text, p_funcao text, p_obs text, p_cbo_manual text, p_vinculos jsonb) | definer=false config=search_path="" executa=authenticated,service_role
+funcao | vencer_convites_do_autor() | definer=true config=search_path="" executa=service_role
+gatilho | acoes :: acoes_auditoria | ativo=true funcao=auditar
+gatilho | acoes :: acoes_carimbo | ativo=true funcao=carimbar
+gatilho | carretas :: carretas_auditoria | ativo=true funcao=auditar
+gatilho | carretas :: carretas_carimbo | ativo=true funcao=carimbar
+gatilho | medicos :: medicos_auditoria | ativo=true funcao=auditar
+gatilho | medicos :: medicos_carimbo | ativo=true funcao=carimbar
+gatilho | perfis_usuarios :: perfis_vence_convites | ativo=true funcao=vencer_convites_do_autor
+permissao-tabela | acoes authenticated | DELETE,INSERT,SELECT,UPDATE
+permissao-tabela | alocacoes authenticated | DELETE,INSERT,SELECT,UPDATE
+permissao-tabela | auditoria authenticated | SELECT
+permissao-tabela | carretas authenticated | SELECT,UPDATE
+permissao-tabela | medico_vinculos authenticated | DELETE,INSERT,SELECT,UPDATE
+permissao-tabela | medicos authenticated | DELETE,INSERT,SELECT,UPDATE
+permissao-tabela | perfis_usuarios authenticated | SELECT
+politica | public.acoes :: acoes_editar | PERMISSIVE UPDATE {authenticated} using=( SELECT privado.eh_membro() AS eh_membro) check=( SELECT privado.eh_membro() AS eh_membro)
+politica | public.acoes :: acoes_excluir | PERMISSIVE DELETE {authenticated} using=( SELECT privado.eh_membro() AS eh_membro) check=-
+politica | public.acoes :: acoes_incluir | PERMISSIVE INSERT {authenticated} using=- check=( SELECT privado.eh_membro() AS eh_membro)
+politica | public.acoes :: acoes_ler | PERMISSIVE SELECT {authenticated} using=( SELECT privado.eh_membro() AS eh_membro) check=-
+politica | public.alocacoes :: alocacoes_editar | PERMISSIVE UPDATE {authenticated} using=( SELECT privado.eh_membro() AS eh_membro) check=( SELECT privado.eh_membro() AS eh_membro)
+politica | public.alocacoes :: alocacoes_excluir | PERMISSIVE DELETE {authenticated} using=( SELECT privado.eh_membro() AS eh_membro) check=-
+politica | public.alocacoes :: alocacoes_incluir | PERMISSIVE INSERT {authenticated} using=- check=( SELECT privado.eh_membro() AS eh_membro)
+politica | public.alocacoes :: alocacoes_ler | PERMISSIVE SELECT {authenticated} using=( SELECT privado.eh_membro() AS eh_membro) check=-
+politica | public.auditoria :: auditoria_ler | PERMISSIVE SELECT {authenticated} using=( SELECT privado.eh_admin() AS eh_admin) check=-
+politica | public.carretas :: carretas_editar | PERMISSIVE UPDATE {authenticated} using=( SELECT privado.eh_admin() AS eh_admin) check=( SELECT privado.eh_admin() AS eh_admin)
+politica | public.carretas :: carretas_ler | PERMISSIVE SELECT {authenticated} using=( SELECT privado.eh_membro() AS eh_membro) check=-
+politica | public.medico_vinculos :: vinculos_editar | PERMISSIVE UPDATE {authenticated} using=( SELECT privado.eh_admin() AS eh_admin) check=( SELECT privado.eh_admin() AS eh_admin)
+politica | public.medico_vinculos :: vinculos_excluir | PERMISSIVE DELETE {authenticated} using=( SELECT privado.eh_admin() AS eh_admin) check=-
+politica | public.medico_vinculos :: vinculos_incluir | PERMISSIVE INSERT {authenticated} using=- check=( SELECT privado.eh_admin() AS eh_admin)
+politica | public.medico_vinculos :: vinculos_ler | PERMISSIVE SELECT {authenticated} using=( SELECT privado.eh_membro() AS eh_membro) check=-
+politica | public.medicos :: medicos_editar | PERMISSIVE UPDATE {authenticated} using=( SELECT privado.eh_admin() AS eh_admin) check=( SELECT privado.eh_admin() AS eh_admin)
+politica | public.medicos :: medicos_excluir | PERMISSIVE DELETE {authenticated} using=( SELECT privado.eh_admin() AS eh_admin) check=-
+politica | public.medicos :: medicos_incluir | PERMISSIVE INSERT {authenticated} using=- check=( SELECT privado.eh_admin() AS eh_admin)
+politica | public.medicos :: medicos_ler | PERMISSIVE SELECT {authenticated} using=( SELECT privado.eh_membro() AS eh_membro) check=-
+politica | public.perfis_usuarios :: perfis_ler | PERMISSIVE SELECT {authenticated} using=((usuario_id = ( SELECT auth.uid() AS uid)) OR ( SELECT privado.eh_admin() AS eh_admin)) check=-
+tabela | acoes | rls=true force=false
+tabela | alocacoes | rls=true force=false
+tabela | auditoria | rls=true force=false
+tabela | carretas | rls=true force=false
+tabela | convites_cadastro | rls=true force=false
+tabela | medico_vinculos | rls=true force=false
+tabela | medicos | rls=true force=false
+tabela | perfis_usuarios | rls=true force=false

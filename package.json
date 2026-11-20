@@ -1,6 +1,6 @@
 {
   "name": "carreta-mais",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "private": true,
   "description": "Testes do Carreta+ (site estático). Não usa credenciais nem dados reais.",
   "scripts": {
