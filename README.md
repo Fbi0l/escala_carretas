@@ -3,6 +3,30 @@
 Sistema para montar a escala dos médicos em cada carreta (por CNES) e gerar o relatório mensal
 **"Divisão de médicos por CNES"** que vai para o operacional fazer o BPA.
 
+## Versões
+
+### 1.2.2 — Nome acessível do botão da conta (20/11/2026)
+
+- O verificador de acessibilidade novo (axe 4.14, trazido pelo Dependabot) exige que o nome lido pelo leitor de tela
+  contenha o texto visível (WCAG 2.5.3). O botão da conta voltou a usar o próprio nome e perfil; no celular eles somem
+  da tela, mas continuam para leitores de tela.
+- Dependabot (`.github/dependabot.yml`) e auditoria semanal do Supabase (`AUDITORIA_SUPABASE.md`, migração 008,
+  começa desligada até cadastrar a senha).
+
+### 1.2.1 — Testes no navegador com acessibilidade (20/11/2026)
+
+- Workflow **Teste no navegador** a cada envio (Playwright + axe, Supabase falso, computador e celular): ver **Testes**.
+- Corrigido (achado pelo teste): texto do aviso de privacidade rolável pelo teclado, botão da conta com nome no celular
+  e links do rodapé com área de toque de 24px.
+
+### 1.2.0 — Privacidade, termo de uso e backup (20/11/2026)
+
+- **Aviso de privacidade** da ASBRAS na entrada e em **Privacidade** (menu, Mais e rodapé).
+- **Termo de uso da equipe:** aceite no primeiro acesso e a cada versão (migração 007, função `aceitar_termo`).
+- **Backup diário criptografado** preparado (`BACKUP.md`, começa desligado).
+- `docs/lgpd/`: registro das operações de tratamento e plano de resposta a incidentes.
+- `tests/rls.sql` corrigido: desde a 006 os usuários de teste precisam de convite reservado; casos novos do termo.
+
 ## O que faz
 
 - **Escalas:** para cada ação (local e data), escolhe quais médicos vão em cada uma das 4 carretas.
