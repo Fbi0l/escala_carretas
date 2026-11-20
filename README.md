@@ -32,6 +32,10 @@ Sistema para montar a escala dos médicos em cada carreta (por CNES) e gerar o r
   As bibliotecas ficam em `vendor/` (Supabase JS 2.119.0, docx 9.15.4 e jsPDF 4.2.1), sem CDN.
 - Toda alteração em ações, médicos e carretas fica registrada na **auditoria** (visível ao administrador).
 - Backup diário criptografado (age) no GitHub Actions, guardado por 30 dias: ver `BACKUP.md`.
+- **Auditoria semanal** da configuração de segurança do Supabase (RLS, políticas, permissões, funções), somente leitura,
+  com um usuário que não lê dados: ver `AUDITORIA_SUPABASE.md`. Mudou o banco de propósito? Atualize
+  `docs/auditoria-supabase-esperado.txt` no mesmo envio.
+- **Dependabot** (`.github/dependabot.yml`): toda segunda confere atualizações das bibliotecas de teste e das ações do GitHub.
 
 ## Uso interno e LGPD
 
