@@ -2,7 +2,7 @@
 -- Uso: colar no SQL Editor do Supabase. O resultado é uma tabela com cada verificação e "ok" true/false.
 begin;
 create temp table _r(teste text, ok boolean, detalhe text);
-grant all on _r to authenticated, anon;
+grant all on _r to authenticated, anon, service_role;
 -- Desde a 006, conta nova só entra com convite reservado para o mesmo e-mail: reserva um para cada usuário de teste.
 insert into public.convites_cadastro(token_hash, perfil, expira_em, reservado_em, reserva_id, email_reserva)
 select md5(e) || md5(e || 'x'), 'enfermagem', now() + interval '1 hour', now(), gen_random_uuid(), e
@@ -105,6 +105,24 @@ set local role anon;
 do $$ begin
   begin perform public.aceitar_termo('2026-11-20'); insert into _r values ('visitante não aceita o termo', false, 'aceitou');
   exception when others then insert into _r values ('visitante não aceita o termo', true, sqlerrm); end;
+end $$;
+reset role;
+
+-- Convite só vale enquanto quem o gerou for administrador ativo (migração 009).
+insert into public.convites_cadastro(token_hash, perfil, criado_por, expira_em) values
+ ('teste-conv-admin', 'administrador', '00000000-0000-4000-8000-0000000000a1', now() + interval '1 hour'),
+ ('teste-conv-enf',   'administrador', '00000000-0000-4000-8000-0000000000e1', now() + interval '1 hour'),
+ ('teste-conv-bloq',  'administrador', '00000000-0000-4000-8000-0000000000b1', now() + interval '1 hour');
+update public.perfis_usuarios set perfil = 'administrador' where usuario_id = '00000000-0000-4000-8000-0000000000b1';
+set local role service_role;
+set local request.jwt.claims = '{"role":"service_role"}';
+do $$ declare p text; begin
+  p := public.reservar_convite_cadastro('teste-conv-admin', gen_random_uuid());
+  insert into _r values ('convite de administrador ativo vale', p = 'administrador', coalesce(p, 'null'));
+  p := public.reservar_convite_cadastro('teste-conv-enf', gen_random_uuid());
+  insert into _r values ('convite de quem não é mais administrador não vale', p is null, coalesce(p, 'null'));
+  p := public.reservar_convite_cadastro('teste-conv-bloq', gen_random_uuid());
+  insert into _r values ('convite de administrador bloqueado não vale', p is null, coalesce(p, 'null'));
 end $$;
 reset role;
 

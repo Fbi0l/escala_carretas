@@ -5,6 +5,12 @@ Sistema para montar a escala dos médicos em cada carreta (por CNES) e gerar o r
 
 ## Versões
 
+### Banco 009 e função manage-users — Bloqueio cancela os convites (20/11/2026)
+
+- Auditoria de segurança do código (skill da Cloudflare): bloquear um administrador não cancelava os convites que ele
+  tinha gerado, e o link ainda criava uma conta nova de administrador. Agora o banco só aceita convite de quem ainda é
+  administrador ativo (migração 009) e, ao bloquear, os convites pendentes da pessoa são cancelados. O site não mudou.
+
 ### 1.2.2 — Nome acessível do botão da conta (20/11/2026)
 
 - O verificador de acessibilidade novo (axe 4.14, trazido pelo Dependabot) exige que o nome lido pelo leitor de tela

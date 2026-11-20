@@ -1,5 +1,6 @@
 # Foto APROVADA da configuracao de seguranca do Supabase (scripts/auditoria-supabase.sh).
 # Gerada em 20/11/2026 a partir do projeto oficial (escala-carretas), com a migracao auditoria_leitura.
+# Conferida de novo por hash depois da migracao 009 (convite_exige_autor_ativo): sem diferenca (so mudou o corpo da funcao).
 # Se uma mudanca de seguranca for INTENCIONAL (tabela, politica, funcao, permissao nova), atualize este arquivo
 # no mesmo envio: bash scripts/auditoria-supabase.sh --gerar > docs/auditoria-supabase-esperado.txt
 # (e recoloque este cabecalho), ou peca ao Claude para gerar pelo conector do Supabase. Linhas com # sao ignoradas.

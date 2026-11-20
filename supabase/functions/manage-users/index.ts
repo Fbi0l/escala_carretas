@@ -117,8 +117,18 @@ Deno.serve(async (req: Request) => {
       const u = await alvo(); if (!u) return resposta(req, { error: "Usuário não encontrado." }, 404);
       const { error } = await admin.auth.admin.updateUserById(u.id, { ban_duration: bloquear ? "876000h" : "none" });
       if (error) return resposta(req, { error: error.message }, 400);
-      await auditar(bloquear ? "bloqueou" : "desbloqueou", u.id, u.email || u.id);
-      return resposta(req, { message: bloquear ? "Conta bloqueada. O acesso é cortado na hora." : "Conta desbloqueada." });
+      // Quem é bloqueado perde também os convites que gerou (o banco já recusa convite de autor bloqueado; aqui eles somem da lista).
+      let convites = 0;
+      if (bloquear) {
+        const agora = new Date().toISOString();
+        const { data: vencidos, error: errConv } = await admin.from("convites_cadastro").update({ expira_em: agora })
+          .eq("criado_por", u.id).is("usado_em", null).gt("expira_em", agora).select("id");
+        if (errConv) console.error("Falha ao cancelar convites do bloqueado", errConv.message);
+        convites = vencidos?.length || 0;
+      }
+      await auditar(bloquear ? "bloqueou" : "desbloqueou", u.id, u.email || u.id, bloquear ? { convites_cancelados: convites } : undefined);
+      const extra = convites ? ` ${convites === 1 ? "1 convite gerado por ela foi cancelado" : `${convites} convites gerados por ela foram cancelados`}.` : "";
+      return resposta(req, { message: bloquear ? `Conta bloqueada. O acesso é cortado na hora.${extra}` : "Conta desbloqueada." });
     }
 
     if (acao === "password") {

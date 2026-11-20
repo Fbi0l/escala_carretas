@@ -9,7 +9,7 @@ Sistema **Carreta+** — atualizado em 20/11/2026.
 ## 1. Conter (na primeira hora)
 
 - [ ] Anote **quando** e **como** soube do problema (data, hora, quem avisou).
-- [ ] Conta suspeita ou de ex-funcionário: em **Usuários**, bloqueie a conta (o acesso cai na hora) e troque a senha.
+- [ ] Conta suspeita ou de ex-funcionário: em **Usuários**, bloqueie a conta (o acesso cai na hora e os convites que ela gerou são cancelados) e troque a senha. Confira em **Usuários** se não sobrou convite pendente gerado por ela.
 - [ ] Chave vazada: no Supabase, *Project Settings → API Keys*, gere uma nova chave secreta e publique de novo as funções `register-user` e `manage-users`. Se foi a senha do banco, troque em *Database → Reset database password*.
 - [ ] Convite enviado à pessoa errada: cancele ou deixe vencer (48 h) e confira em **Usuários** se alguém entrou com ele.
 - [ ] Relatório enviado ao destino errado: peça a exclusão da mensagem e anote quem recebeu.
