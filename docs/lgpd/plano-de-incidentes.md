@@ -13,6 +13,7 @@ Sistema **Carreta+** — atualizado em 20/11/2026.
 - [ ] Chave vazada: no Supabase, *Project Settings → API Keys*, gere uma nova chave secreta e publique de novo as funções `register-user` e `manage-users`. Se foi a senha do banco, troque em *Database → Reset database password*.
 - [ ] Convite enviado à pessoa errada: cancele ou deixe vencer (48 h) e confira em **Usuários** se alguém entrou com ele.
 - [ ] Relatório enviado ao destino errado: peça a exclusão da mensagem e anote quem recebeu.
+- [ ] Alerta da **Auditoria de seguranca do Supabase** (workflow semanal, quando ligado): veja no resumo o que mudou em relação à foto aprovada e desfaça a mudança se não foi intencional.
 - [ ] **Não apague** a tabela `auditoria` nem os logs do Supabase (*Logs*): eles mostram o que aconteceu.
 
 ## 2. Avaliar (em até 24 horas)
