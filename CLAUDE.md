@@ -35,7 +35,7 @@ A versão aparece em `config.js` (`versao`), `index.html` (`?v=`), `sw.js` (nome
 
 ## Pendências
 
-- Auditoria de segurança do código (skill auditoria-seguranca-codigo, base Cloudflare security-audit), 20/11/2026, commit 54bbea3, perfil rápido: 1 falha média confirmada e corrigida no mesmo dia (bloqueio não cancelava convites: migração 009 + manage-users). Melhorias opcionais ainda abertas: auditoria também em `alocacoes`; pedir a senha atual para trocar a própria senha; fixar ações do GitHub por SHA e a imagem `postgres:18` por digest; Environment do GitHub para as senhas do backup/auditoria; checksum das bibliotecas de `vendor/`; `package-lock.json` com versão 1.2.1.
+- Auditoria de segurança do código (skill auditoria-seguranca-codigo, base Cloudflare security-audit), 20/11/2026, commit 54bbea3, perfil rápido: 1 falha média confirmada e corrigida no mesmo dia (bloqueio não cancelava convites: migração 009 + manage-users). Melhorias opcionais ainda abertas: auditoria também em `alocacoes`; pedir a senha atual para trocar a própria senha; fixar ações do GitHub por SHA e a imagem `postgres:18` por digest; Environment do GitHub para as senhas do backup/auditoria; checksum das bibliotecas de `vendor/`. Guias modern-web-guidance (Google Chrome): janelas já migradas para `<dialog>` na 1.2.3.
 
 - Ligar o backup e a auditoria semanal (cadastrar variáveis e senhas no GitHub).
 - Indicar o encarregado (DPO) ou canal de privacidade da ASBRAS (hoje é o administrador do sistema).

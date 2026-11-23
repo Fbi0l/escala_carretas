@@ -5,6 +5,13 @@ Sistema para montar a escala dos médicos em cada carreta (por CNES) e gerar o r
 
 ## Versões
 
+### 1.2.3 — Janelas com o recurso nativo do navegador (23/11/2026)
+
+- As janelas (escala, médico, senha, confirmações, avisos) passaram a usar o `<dialog>` do próprio navegador, como
+  recomendam os guias do Chrome, Edge, Firefox e MDN (modern-web-guidance): a página por trás fica bloqueada, o foco fica
+  preso na janela, Esc fecha e o foco volta ao botão de origem sem código próprio. Avisos de erro aparecem por cima da
+  janela. Teste novo no navegador.
+
 ### Banco 009 e função manage-users — Bloqueio cancela os convites (20/11/2026)
 
 - Auditoria de segurança do código (skill da Cloudflare): bloquear um administrador não cancelava os convites que ele

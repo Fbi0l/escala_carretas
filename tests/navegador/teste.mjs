@@ -106,6 +106,20 @@ try {
     ok(`${vista}: abre e mostra "${texto}"`);
     await acessibilidade(page, vista); await foto(page, 'pc-' + vista);
   }
+  // Janela nativa (<dialog>): abre como modal com nome, aviso de erro visível por cima, Esc fecha e devolve o foco.
+  await page.evaluate(() => { location.hash = '#escalas'; });
+  await page.locator('#conteudo', { hasText: 'Município Exemplo' }).waitFor({ timeout: 8000 });
+  await page.locator('button[data-acao="nova-acao"]:visible').first().click();
+  const janela = page.locator('#modal-root dialog');
+  await janela.waitFor({ state: 'visible' });
+  assert.ok(await janela.evaluate(d => d.matches(':modal') && !!document.getElementById(d.getAttribute('aria-labelledby'))), 'a escala abre como janela modal com nome');
+  await acessibilidade(page, 'janela de escala');
+  await page.locator('#modal-root [data-acao="salvar-acao"]').click();
+  assert.ok(await page.locator('#modal-root dialog #toast-root .toast.err').isVisible(), 'o aviso de erro aparece dentro da janela');
+  await page.keyboard.press('Escape');
+  await janela.waitFor({ state: 'detached' });
+  assert.ok(await page.evaluate(() => document.activeElement?.dataset.acao === 'nova-acao'), 'o foco volta ao botão que abriu a janela');
+  ok('janela de escala: modal nativa, aviso visível e Esc fecha');
   assert.deepEqual(erros, [], 'erros de JavaScript: ' + erros.join(' | '));
   ok('nenhum erro de JavaScript');
   await ctx.close();

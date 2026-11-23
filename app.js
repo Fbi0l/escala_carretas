@@ -34,6 +34,8 @@
   let toastT;
   function toast(msg, erro = false) {
     const root = $('#toast-root'); root.innerHTML = '';
+    // Com uma janela aberta (camada superior do <dialog>), o aviso vai para dentro dela para ficar visível.
+    const dlg = $('#modal-root dialog[open]'); if (dlg && root.parentElement !== dlg) dlg.appendChild(root);
     const t = document.createElement('div'); t.className = 'toast' + (erro ? ' err' : ''); t.textContent = msg;
     root.appendChild(t); clearTimeout(toastT); toastT = setTimeout(() => t.remove(), erro ? 6000 : 3200);
   }
@@ -430,16 +432,26 @@
   }
 
   /* ---------- modais ---------- */
-  let focoAnterior = null;
+  // Janelas com o <dialog> nativo: o navegador deixa a página inerte, prende o foco, fecha com Esc e devolve o foco.
   function abrirModal(html) {
     const root = $('#modal-root');
-    if (!root.firstChild) focoAnterior = document.activeElement;
-    root.innerHTML = `<div class="overlay" data-overlay>${html}</div>`;
-    const f = root.querySelector('[autofocus]') || root.querySelector('input:not([readonly]),select,textarea,button'); f && f.focus();
+    let dlg = root.querySelector('dialog');
+    if (!dlg) {
+      dlg = document.createElement('dialog'); dlg.className = 'overlay'; dlg.dataset.overlay = '';
+      dlg.addEventListener('cancel', e => { e.preventDefault(); if (S.modal?.tipo === 'acao') fecharEditor(); else fecharModal(); });
+      root.appendChild(dlg);
+    }
+    dlg.innerHTML = html;
+    const caixa = dlg.firstElementChild;
+    dlg.setAttribute('aria-labelledby', caixa?.getAttribute('aria-labelledby') || '');
+    if (caixa?.getAttribute('role') === 'alertdialog') dlg.setAttribute('role', 'alertdialog'); else dlg.removeAttribute('role');
+    caixa?.removeAttribute('role'); caixa?.removeAttribute('aria-modal'); caixa?.removeAttribute('aria-labelledby');
+    if (!dlg.open) dlg.showModal();
+    const f = dlg.querySelector('[autofocus]') || dlg.querySelector('input:not([readonly]),select,textarea,button'); f && f.focus();
   }
   function fecharModal() {
-    $('#modal-root').innerHTML = ''; S.modal = null;
-    if (focoAnterior && document.contains(focoAnterior)) focoAnterior.focus(); focoAnterior = null;
+    const dlg = $('#modal-root dialog'); S.modal = null;
+    if (dlg) { const t = $('#toast-root'); if (t && dlg.contains(t)) document.body.appendChild(t); if (dlg.open) dlg.close(); dlg.remove(); }
   }
   function confirmar(titulo, textoHtml, rotulo, acao, classe = 'danger-solid') {
     abrirModal(`<div class="modal estreito" role="alertdialog" aria-modal="true" aria-labelledby="cfT"><div class="modal-h"><h2 id="cfT">${esc(titulo)}</h2></div>
@@ -750,15 +762,9 @@
   });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
-      if ($('.combo-list')) return comboFechar();
-      if (!$('#contaMenu').classList.contains('hidden')) { fecharMenus(); $('#contaBtn').focus(); return; }
-      if (S.modal?.tipo === 'acao') return fecharEditor();
-      if ($('#modal-root').firstChild) return fecharModal();
-    }
-    if (e.key === 'Tab' && $('#modal-root').firstChild) {
-      const f = [...$('#modal-root').querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea')].filter(x => x.offsetParent);
-      if (f.length) { const i = f.indexOf(document.activeElement);
-        if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); } }
+      // Combo e menu fecham primeiro sem fechar a janela; o resto do Esc é tratado pelo evento "cancel" do <dialog>.
+      if ($('.combo-list')) { e.preventDefault(); return comboFechar(); }
+      if (!$('#contaMenu').classList.contains('hidden')) { e.preventDefault(); fecharMenus(); $('#contaBtn').focus(); return; }
     }
     const inp = e.target.closest?.('[data-combo]');
     if (inp) {
